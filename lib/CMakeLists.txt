@@ -252,9 +252,9 @@ endif(NOT CPU_IS_x86)
 ########################################################################
 # if building Debian armel, eliminate neon
 ########################################################################
-if(${CMAKE_LIBRARY_ARCHITECTURE} STREQUAL "arm-linux-gnueabi")
-    OVERRULE_ARCH(neon "Architecture is not armhf")
-endif(${CMAKE_LIBRARY_ARCHITECTURE} STREQUAL "arm-linux-gnueabi")
+#if(${CMAKE_LIBRARY_ARCHITECTURE} STREQUAL "arm-linux-gnueabi")
+    OVERRULE_ARCH(neon "We don't want neon on raspbian")
+#endif(${CMAKE_LIBRARY_ARCHITECTURE} STREQUAL "arm-linux-gnueabi")
 
 ########################################################################
 # implement overruling in the ORC case,
@@ -434,7 +434,7 @@ if((${CMAKE_VERSION} VERSION_GREATER "2.8.9") AND NOT (${CMAKE_LIBRARY_ARCHITECT
   # set up the assembler flags and include the source files
   foreach(ARCH ${ASM_ARCHS_AVAILABLE})
       string(REGEX MATCH "${ARCH}" ASM_ARCH "${available_archs}")
-    if(( ASM_ARCH STREQUAL "neon" ) OR ( ${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv7"))
+    if(( ASM_ARCH STREQUAL "neonxxxx" ) OR ( ${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv7xxxx"))
       message(STATUS "---- Adding ASM files") # we always use ATT syntax
       message(STATUS "-- Detected neon architecture; enabling ASM")
       # setup architecture specific assembler flags
