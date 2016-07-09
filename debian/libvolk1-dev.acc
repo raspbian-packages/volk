@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<descriptor>
+
+<headers>
+debian/libvolk1-dev/usr/include/
+</headers>
+
+<libs>
+debian/libvolk1.3/usr/lib/
+</libs>
+
+</descriptor>
