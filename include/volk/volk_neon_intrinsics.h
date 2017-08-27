@@ -27,6 +27,7 @@
 
 #ifndef INCLUDE_VOLK_VOLK_NEON_INTRINSICS_H_
 #define INCLUDE_VOLK_VOLK_NEON_INTRINSICS_H_
+#ifdef LV_HAVE_NEON
 #include <arm_neon.h>
 
 static inline float32x4_t
@@ -119,4 +120,5 @@ _vlog2q_f32(float32x4_t aval)
   return log2_approx;
 }
 
+#endif /*LV_HAVE_NEON*/
 #endif /* INCLUDE_VOLK_VOLK_NEON_INTRINSICS_H_ */
