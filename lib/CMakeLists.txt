@@ -544,7 +544,7 @@ if(CMAKE_VERSION VERSION_GREATER "2.8.7")
 
     #Add dynamic library
     add_library(volk SHARED $<TARGET_OBJECTS:volk_obj>)
-    target_link_libraries(volk ${volk_libraries})
+    target_link_libraries(volk ${volk_libraries} m)
 
     #Configure target properties
     set_target_properties(volk_obj PROPERTIES COMPILE_FLAGS "-fPIC")
