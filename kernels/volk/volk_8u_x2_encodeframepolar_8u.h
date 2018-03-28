@@ -58,8 +58,6 @@ encodepolar_single_stage(unsigned char* frame_ptr, const unsigned char* temp_ptr
   }
 }
 
-#ifdef LV_HAVE_GENERIC
-
 static inline void
 volk_8u_x2_encodeframepolar_8u_generic(unsigned char* frame, unsigned char* temp,
                                        unsigned int frame_size)
@@ -79,7 +77,6 @@ volk_8u_x2_encodeframepolar_8u_generic(unsigned char* frame, unsigned char* temp
     --stage;
   }
 }
-#endif /* LV_HAVE_GENERIC */
 
 #ifdef LV_HAVE_SSSE3
 #include <tmmintrin.h>
