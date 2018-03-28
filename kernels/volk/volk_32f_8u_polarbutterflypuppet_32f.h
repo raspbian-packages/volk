@@ -18,6 +18,7 @@
 #include <volk/volk_32f_8u_polarbutterfly_32f.h>
 #include <volk/volk_8u_x3_encodepolar_8u_x2.h>
 #include <volk/volk_8u_x3_encodepolarpuppet_8u.h>
+#include <volk/volk_8u_x2_encodeframepolar_8u.h>
 
 
 static inline void sanitize_bytes(unsigned char* u, const int elements)
