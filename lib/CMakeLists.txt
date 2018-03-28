@@ -282,6 +282,13 @@ else(neon_compile_result)
 endif(neon_compile_result)
 
 ########################################################################
+# if building Debian armel, eliminate neon
+########################################################################
+if(${CMAKE_LIBRARY_ARCHITECTURE} STREQUAL "arm-linux-gnueabi")
+    OVERRULE_ARCH(neon "Architecture is not armhf")
+endif(${CMAKE_LIBRARY_ARCHITECTURE} STREQUAL "arm-linux-gnueabi")
+
+########################################################################
 # implement overruling in the ORC case,
 # since ORC always passes flag detection
 ########################################################################
@@ -440,7 +447,7 @@ string(REPLACE "\n" " \\n" COMPILER_INFO ${COMPILER_INFO})
 # Handle ASM support
 #  on by default, but let users turn it off
 ########################################################################
-if(${CMAKE_VERSION} VERSION_GREATER "2.8.9")
+if((${CMAKE_VERSION} VERSION_GREATER "2.8.9")  AND NOT (${CMAKE_LIBRARY_ARCHITECTURE} STREQUAL "arm-linux-gnueabi"))
   set(ASM_ARCHS_AVAILABLE "neonv7" "neonv8")
 
   set(FULL_C_FLAGS "${CMAKE_C_FLAGS}" "${CMAKE_CXX_COMPILER_ARG1}")
@@ -469,7 +476,7 @@ if(${CMAKE_VERSION} VERSION_GREATER "2.8.9")
     message(STATUS "asm flags: ${CMAKE_ASM_FLAGS}")
   endforeach(ARCH)
 
-else(${CMAKE_VERSION} VERSION_GREATER "2.8.9")
+else((${CMAKE_VERSION} VERSION_GREATER "2.8.9") AND NOT (${CMAKE_LIBRARY_ARCHITECTURE} STREQUAL "arm-linux-gnueabi"))
   message(STATUS "Not enabling ASM support. CMake >= 2.8.10 required.")
   foreach(machine_name ${available_machines})
     string(REGEX MATCH "neon" NEON_MACHINE ${machine_name})
@@ -477,7 +484,7 @@ else(${CMAKE_VERSION} VERSION_GREATER "2.8.9")
       message(FATAL_ERROR "CMake >= 2.8.10 is required for ARM NEON support")
     endif()
   endforeach()
-endif(${CMAKE_VERSION} VERSION_GREATER "2.8.9")
+endif((${CMAKE_VERSION} VERSION_GREATER "2.8.9") AND NOT (${CMAKE_LIBRARY_ARCHITECTURE} STREQUAL "arm-linux-gnueabi"))
 
 ########################################################################
 # Handle orc support
