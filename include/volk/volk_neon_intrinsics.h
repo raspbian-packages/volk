@@ -27,6 +27,7 @@
 
 #ifndef INCLUDE_VOLK_VOLK_NEON_INTRINSICS_H_
 #define INCLUDE_VOLK_VOLK_NEON_INTRINSICS_H_
+#ifdef LV_HAVE_NEON
 #include <arm_neon.h>
 
 
@@ -75,4 +76,5 @@ _vmultiply_complexq_f32(float32x4x2_t a_val, float32x4x2_t b_val)
     return c_val;
 }
 
+#endif /*LV_HAVE_NEON*/
 #endif /* INCLUDE_VOLK_VOLK_NEON_INTRINSICS_H_ */
