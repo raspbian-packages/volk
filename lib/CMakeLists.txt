@@ -328,8 +328,11 @@ message(STATUS "Available machines: ${available_machines}")
 
 #dependencies are all python, xml, and header implementation files
 file(GLOB xml_files ${PROJECT_SOURCE_DIR}/gen/*.xml)
+list(SORT xml_files)
 file(GLOB py_files ${PROJECT_SOURCE_DIR}/gen/*.py)
+list(SORT py_files)
 file(GLOB h_files ${PROJECT_SOURCE_DIR}/kernels/volk/*.h)
+list(SORT h_files)
 
 macro(gen_template tmpl output)
     list(APPEND volk_gen_sources ${output})
