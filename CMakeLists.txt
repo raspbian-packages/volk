@@ -44,10 +44,9 @@ set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "")
 message(STATUS "Build type set to ${CMAKE_BUILD_TYPE}.")
 
 set(VERSION_INFO_MAJOR_VERSION 1)
-set(VERSION_INFO_MINOR_VERSION 3)
-set(VERSION_INFO_MAINT_VERSION 1)
+set(VERSION_INFO_MINOR_VERSION 4)
+set(VERSION_INFO_MAINT_VERSION 0)
 include(VolkVersion) #setup version info
-
 
 ########################################################################
 # Environment setup
@@ -61,6 +60,14 @@ IF(NOT DEFINED CROSSCOMPILE_MULTILIB)
 ENDIF()
 SET(CROSSCOMPILE_MULTILIB ${CROSSCOMPILE_MULTILIB} CACHE STRING "Define \"true\" if you have and want to use multiple C development libs installed for cross compile")
 
+if(MSVC)
+    add_definitions(-D_USE_MATH_DEFINES) #enables math constants on all supported versions of MSVC
+    add_compile_options(/W1) #reduce warnings
+    add_compile_options(/wo4309)
+    add_compile_options(/wd4752)
+    add_compile_options(/wo4273)
+    add_compile_options(/wo4838)
+endif(MSVC)
 
 ########################################################################
 # Dependencies setup
@@ -68,16 +75,22 @@ SET(CROSSCOMPILE_MULTILIB ${CROSSCOMPILE_MULTILIB} CACHE STRING "Define \"true\"
 
 # Python
 include(VolkPython) #sets PYTHON_EXECUTABLE and PYTHON_DASH_B
-VOLK_PYTHON_CHECK_MODULE("python >= 2.5" sys "sys.version.split()[0] >= '2.5'" PYTHON_MIN_VER_FOUND)
-VOLK_PYTHON_CHECK_MODULE("Cheetah >= 2.0.0" Cheetah "Cheetah.Version >= '2.0.0'" CHEETAH_FOUND)
+VOLK_PYTHON_CHECK_MODULE("python >= 2.7" sys "sys.version.split()[0] >= '2.7'" PYTHON_MIN_VER_FOUND)
+VOLK_PYTHON_CHECK_MODULE("mako >= 0.4.2" mako "mako.__version__ >= '0.4.2'" MAKO_FOUND)
+VOLK_PYTHON_CHECK_MODULE("six - python 2 and 3 compatibility library" six "True" SIX_FOUND)
 
 if(NOT PYTHON_MIN_VER_FOUND)
-    message(FATAL_ERROR "Python 2.5 or greater required to build VOLK")
+    message(FATAL_ERROR "Python 2.7 or greater required to build VOLK")
 endif()
 
-# Cheetah
-if(NOT CHEETAH_FOUND)
-    message(FATAL_ERROR "Cheetah templates required to build VOLK")
+# Mako
+if(NOT MAKO_FOUND)
+    message(FATAL_ERROR "Mako templates required to build VOLK")
+endif()
+
+# Six
+if(NOT SIX_FOUND)
+    message(FATAL_ERROR "six - python 2 and 3 compatibility library required to build VOLK")
 endif()
 
 # Boost
@@ -117,7 +130,7 @@ if(DOXYGEN_FOUND)
         ${CMAKE_BINARY_DIR}/Doxyfile
     @ONLY)
 
-    add_custom_target(doc
+    add_custom_target(volk_doc
         ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMENT "Generating documentation with Doxygen" VERBATIM
@@ -158,20 +171,19 @@ install(
 )
 
 install(FILES
-    ${CMAKE_SOURCE_DIR}/include/volk/constants.h
+    ${CMAKE_SOURCE_DIR}/include/volk/volk_prefs.h
+    ${CMAKE_SOURCE_DIR}/include/volk/volk_complex.h
+    ${CMAKE_SOURCE_DIR}/include/volk/volk_common.h
     ${CMAKE_SOURCE_DIR}/include/volk/saturation_arithmetic.h
     ${CMAKE_SOURCE_DIR}/include/volk/volk_avx_intrinsics.h
-    ${CMAKE_SOURCE_DIR}/include/volk/volk_common.h
-    ${CMAKE_SOURCE_DIR}/include/volk/volk_complex.h
-    ${CMAKE_SOURCE_DIR}/include/volk/volk_malloc.h
-    ${CMAKE_SOURCE_DIR}/include/volk/volk_neon_intrinsics.h
-    ${CMAKE_SOURCE_DIR}/include/volk/volk_prefs.h
-    ${CMAKE_SOURCE_DIR}/include/volk/volk_sse3_intrinsics.h
     ${CMAKE_SOURCE_DIR}/include/volk/volk_sse_intrinsics.h
+    ${CMAKE_SOURCE_DIR}/include/volk/volk_sse3_intrinsics.h
+    ${CMAKE_SOURCE_DIR}/include/volk/volk_neon_intrinsics.h
     ${CMAKE_BINARY_DIR}/include/volk/volk.h
     ${CMAKE_BINARY_DIR}/include/volk/volk_cpu.h
     ${CMAKE_BINARY_DIR}/include/volk/volk_config_fixed.h
     ${CMAKE_BINARY_DIR}/include/volk/volk_typedefs.h
+    ${CMAKE_SOURCE_DIR}/include/volk/volk_malloc.h
     DESTINATION include/volk
     COMPONENT "volk_devel"
 )
