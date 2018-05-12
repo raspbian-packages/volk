@@ -542,7 +542,7 @@ if(CMAKE_VERSION VERSION_GREATER "2.8.11")
 
     #Add dynamic library
     add_library(volk SHARED $<TARGET_OBJECTS:volk_obj>)
-    target_link_libraries(volk ${volk_libraries})
+    target_link_libraries(volk ${volk_libraries} m)
     target_include_directories(volk
         PUBLIC ${PROJECT_BINARY_DIR}/include
         PUBLIC ${PROJECT_SOURCE_DIR}/include
@@ -584,7 +584,7 @@ if(CMAKE_VERSION VERSION_GREATER "2.8.11")
 else()
     #create the volk runtime library
     add_library(volk SHARED ${volk_sources})
-    target_link_libraries(volk ${volk_libraries})
+    target_link_libraries(volk ${volk_libraries} m)
     include_directories(volk
         PUBLIC ${PROJECT_BINARY_DIR}/include
         PUBLIC ${PROJECT_SOURCE_DIR}/include
