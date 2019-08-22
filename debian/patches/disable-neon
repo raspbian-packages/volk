@@ -1,24 +1,10 @@
 Description: Disable neon.
 Author: Peter Michael Green <plugwash@raspbian.org>
 
----
-The information above should follow the Patch Tagging Guidelines, please
-checkout http://dep.debian.net/deps/dep3/ to learn about the format. Here
-are templates for supplementary fields that you might want to add:
 
-Origin: <vendor|upstream|other>, <url of original patch>
-Bug: <url in upstream bugtracker>
-Bug-Debian: https://bugs.debian.org/<bugnumber>
-Bug-Ubuntu: https://launchpad.net/bugs/<bugnumber>
-Forwarded: <no|not-needed|url proving that it has been forwarded>
-Reviewed-By: <name and email of someone who approved the patch>
-Last-Update: <YYYY-MM-DD>
-
-Index: volk-1.1/lib/CMakeLists.txt
-===================================================================
---- volk-1.1.orig/lib/CMakeLists.txt
-+++ volk-1.1/lib/CMakeLists.txt
-@@ -237,9 +237,9 @@ endif(NOT CPU_IS_x86)
+--- volk-2.0.0.orig/lib/CMakeLists.txt
++++ volk-2.0.0/lib/CMakeLists.txt
+@@ -284,9 +284,9 @@ endif(neon_compile_result)
  ########################################################################
  # if building Debian armel, eliminate neon
  ########################################################################
@@ -31,12 +17,12 @@ Index: volk-1.1/lib/CMakeLists.txt
  
  ########################################################################
  # implement overruling in the ORC case,
-@@ -414,7 +414,7 @@ if((${CMAKE_VERSION} VERSION_GREATER "2.
+@@ -457,7 +457,7 @@ if((${CMAKE_VERSION} VERSION_GREATER "2.
    # set up the assembler flags and include the source files
    foreach(ARCH ${ASM_ARCHS_AVAILABLE})
        string(REGEX MATCH "${ARCH}" ASM_ARCH "${available_archs}")
--    if(( ASM_ARCH STREQUAL "neon" ) OR ( ${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv7"))
-+    if(( ASM_ARCH STREQUAL "neonxxxx" ) OR ( ${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv7xxxx"))
+-    if( ASM_ARCH STREQUAL "neonv7" )
++    if( ASM_ARCH STREQUAL "neonv7xxxxx" )
        message(STATUS "---- Adding ASM files") # we always use ATT syntax
        message(STATUS "-- Detected neon architecture; enabling ASM")
        # setup architecture specific assembler flags
