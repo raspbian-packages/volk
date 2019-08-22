@@ -1,9 +1,28 @@
-volk (1.4-3+rpi1) buster-staging; urgency=medium
+volk (2.0.0-2+rpi1) bullseye-staging; urgency=medium
 
   [changes brought forward from 1.1-1+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Sun, 20 Sep 2015 20:30:19 +0000]
   * Disable neon.
 
- -- Raspbian forward porter <root@raspbian.org>  Sun, 20 May 2018 21:04:31 +0000
+ -- Peter Michael Green <plugwash@raspbian.org>  Thu, 22 Aug 2019 17:08:21 +0000
+
+volk (2.0.0-2) unstable; urgency=medium
+
+  * Upload to unstable
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Mon, 12 Aug 2019 22:49:11 -0400
+
+volk (2.0.0-1) experimental; urgency=medium
+
+  * New upstream release
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Wed, 07 Aug 2019 23:31:20 -0400
+
+volk (1.4-4) unstable; urgency=medium
+
+  * working volk_modtool with Python 3
+  * build and install libvolk.a
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Mon, 29 Oct 2018 01:32:05 -0400
 
 volk (1.4-3) unstable; urgency=medium
 

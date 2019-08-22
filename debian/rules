@@ -1,17 +1,23 @@
 #!/usr/bin/make -f
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 export DEB_HOST_MULTIARCH
-DH_VERBOSE=1
-export DH_VERBOSE
+export DH_VERBOSE=1
 
 %:
-	dh $@ --with python2
+	dh $@ --with python3
 
 override_dh_auto_configure:
-	dh_auto_configure -- -DLIB_SUFFIX="/$(DEB_HOST_MULTIARCH)" -DPYTHON_EXECUTABLE=/usr/bin/python
+	dh_auto_configure -- -DLIB_SUFFIX="/$(DEB_HOST_MULTIARCH)" \
+	-DENABLE_STATIC_LIBS=On, -DPYTHON_EXECUTABLE=/usr/bin/python3 \
+	-DCMAKE_BUILD_TYPE=RelWithDebInfo
+
+override_dh_auto_build-indep:
+	cmake --build obj-* --target volk_doc
 
 override_dh_auto_test:
 	- dh_auto_test -- CTEST_TEST_TIMEOUT=60
 
 override_dh_acc:
+	- abi-compliance-checker -l libvolk2-dev -v1 2.0.0-1 -dump debian/libvolk2-dev.acc -dump-path debian/libvolk2-dev/usr/lib/x86_64-linux-gnu/dh-acc/libvolk2-dev_2.0.0-1.abi.tar.gz
+	- cat logs/libvolk2-dev/2.0.0-1/log.txt
 	- dh_acc

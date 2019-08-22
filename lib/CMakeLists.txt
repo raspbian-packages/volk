@@ -1,5 +1,5 @@
 #
-# Copyright 2011-2012,2014 Free Software Foundation, Inc.
+# Copyright 2011-2012,2014,2018 Free Software Foundation, Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -206,7 +206,7 @@ if(CPU_IS_x86)
     endif(CMAKE_SIZEOF_VOID_P EQUAL 4)
 
     # Disable SSE4a if Clang is less than version 3.2
-    if("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+    if("${CMAKE_C_COMPILER_ID}" MATCHES "Clang")
       # Figure out the version of Clang
       if(CMAKE_VERSION VERSION_LESS "2.8.10")
         # Exctract the Clang version from the --version string.
@@ -220,7 +220,7 @@ if(CPU_IS_x86)
       if(CMAKE_C_COMPILER_VERSION VERSION_LESS "3.2")
         OVERRULE_ARCH(sse4_a "Clang >= 3.2 required for SSE4a")
       endif(CMAKE_C_COMPILER_VERSION VERSION_LESS "3.2")
-    endif("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+    endif("${CMAKE_C_COMPILER_ID}" MATCHES "Clang")
 
 endif(CPU_IS_x86)
 
@@ -247,7 +247,39 @@ if(NOT CPU_IS_x86)
     OVERRULE_ARCH(sse4_1 "Architecture is not x86 or x86_64")
     OVERRULE_ARCH(sse4_2 "Architecture is not x86 or x86_64")
     OVERRULE_ARCH(avx "Architecture is not x86 or x86_64")
+    OVERRULE_ARCH(avx512f "Architecture is not x86 or x86_64")
+    OVERRULE_ARCH(avx512cd "Architecture is not x86 or x86_64")
 endif(NOT CPU_IS_x86)
+
+########################################################################
+# Select neon based on ARM ISA version
+########################################################################
+
+# First, compile a test program to see if compiler supports neon.
+
+include(CheckCSourceCompiles)
+
+check_c_source_compiles("#include <arm_neon.h>\nint main(){ uint8_t *dest; uint8x8_t res; vst1_u8(dest, res); }"
+	                neon_compile_result)
+
+if(neon_compile_result)
+    check_c_source_compiles("int main(){asm volatile(\"vrev32.8 q0, q0\");}"
+                            have_neonv7_result )
+    check_c_source_compiles("int main(){asm volatile(\"sub v1.4s,v1.4s,v1.4s\");}"
+                            have_neonv8_result )
+
+    if (have_neonv7_result)
+        OVERRULE_ARCH(neonv8 "CPU is armv7")
+    endif()
+
+    if (have_neonv8_result)
+        OVERRULE_ARCH(neonv7 "CPU is armv8")
+    endif()
+else(neon_compile_result)
+    OVERRULE_ARCH(neon "Compiler doesn't support NEON")
+    OVERRULE_ARCH(neonv7 "Compiler doesn't support NEON")
+    OVERRULE_ARCH(neonv8 "Compiler doesn't support NEON")
+endif(neon_compile_result)
 
 ########################################################################
 # if building Debian armel, eliminate neon
@@ -281,6 +313,9 @@ if(NOT CROSSCOMPILE_MULTILIB AND CPU_IS_x86)
     #MSVC 64 bit does not have MMX, overrule it
     if (${SIZEOF_CPU} EQUAL 64 AND MSVC)
         OVERRULE_ARCH(mmx "No MMX for Win64")
+	if (MSVC_VERSION GREATER 1700)
+            OVERRULE_ARCH(sse "No SSE for Win64 Visual Studio 2013")
+        endif()
     endif()
 
 endif()
@@ -328,11 +363,8 @@ message(STATUS "Available machines: ${available_machines}")
 
 #dependencies are all python, xml, and header implementation files
 file(GLOB xml_files ${PROJECT_SOURCE_DIR}/gen/*.xml)
-list(SORT xml_files)
 file(GLOB py_files ${PROJECT_SOURCE_DIR}/gen/*.py)
-list(SORT py_files)
 file(GLOB h_files ${PROJECT_SOURCE_DIR}/kernels/volk/*.h)
-list(SORT h_files)
 
 macro(gen_template tmpl output)
     list(APPEND volk_gen_sources ${output})
@@ -391,6 +423,7 @@ foreach(machine_name ${available_machines})
         --mode "machine_flags" --machine "${machine_name}" --compiler "${COMPILER_NAME}"
         OUTPUT_VARIABLE ${machine_name}_flags OUTPUT_STRIP_TRAILING_WHITESPACE
     )
+
     MESSAGE(STATUS "BUILD INFO ::: ${machine_name} ::: ${COMPILER_NAME} ::: ${CMAKE_C_FLAGS_${CBTU}} ${CMAKE_C_FLAGS} ${${machine_name}_flags}")
     set(COMPILER_INFO "${COMPILER_INFO}${machine_name}:::${COMPILER_NAME}:::${CMAKE_C_FLAGS_${CBTU}} ${CMAKE_C_FLAGS} ${${machine_name}_flags}\n" )
     if(${machine_name}_flags AND NOT MSVC)
@@ -414,8 +447,8 @@ string(REPLACE "\n" " \\n" COMPILER_INFO ${COMPILER_INFO})
 # Handle ASM support
 #  on by default, but let users turn it off
 ########################################################################
-if((${CMAKE_VERSION} VERSION_GREATER "2.8.9") AND NOT (${CMAKE_LIBRARY_ARCHITECTURE} STREQUAL "arm-linux-gnueabi"))
-  set(ASM_ARCHS_AVAILABLE "neon")
+if((${CMAKE_VERSION} VERSION_GREATER "2.8.9")  AND NOT (${CMAKE_LIBRARY_ARCHITECTURE} STREQUAL "arm-linux-gnueabi"))
+  set(ASM_ARCHS_AVAILABLE "neonv7" "neonv8")
 
   set(FULL_C_FLAGS "${CMAKE_C_FLAGS}" "${CMAKE_CXX_COMPILER_ARG1}")
 
@@ -424,7 +457,7 @@ if((${CMAKE_VERSION} VERSION_GREATER "2.8.9") AND NOT (${CMAKE_LIBRARY_ARCHITECT
   # set up the assembler flags and include the source files
   foreach(ARCH ${ASM_ARCHS_AVAILABLE})
       string(REGEX MATCH "${ARCH}" ASM_ARCH "${available_archs}")
-    if(( ASM_ARCH STREQUAL "neonxxxx" ) OR ( ${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv7xxxx"))
+    if( ASM_ARCH STREQUAL "neonv7xxxxx" )
       message(STATUS "---- Adding ASM files") # we always use ATT syntax
       message(STATUS "-- Detected neon architecture; enabling ASM")
       # setup architecture specific assembler flags
@@ -438,7 +471,7 @@ if((${CMAKE_VERSION} VERSION_GREATER "2.8.9") AND NOT (${CMAKE_LIBRARY_ARCHITECT
       endforeach(asm_file)
     endif()
     enable_language(ASM)
-    set(CMAKE_ASM_FLAGS ${ARCH_ASM_FLAGS})
+    set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} ${ARCH_ASM_FLAGS}")
     message(STATUS "c flags: ${FULL_C_FLAGS}")
     message(STATUS "asm flags: ${CMAKE_ASM_FLAGS}")
   endforeach(ARCH)
@@ -527,94 +560,70 @@ if(MSVC)
     set_source_files_properties(${volk_sources} PROPERTIES LANGUAGE CXX)
 endif()
 
-#Use object library for faster overall build in newer versions of cmake
-if(CMAKE_VERSION VERSION_GREATER "2.8.11")
-    #Create a volk object library (requires cmake >= 2.8.8)
-    add_library(volk_obj OBJECT ${volk_sources})
-    # a better cmake-fu user may make this more repeatable
-    target_include_directories(volk_obj
-        PUBLIC ${PROJECT_BINARY_DIR}/include
-        PUBLIC ${PROJECT_SOURCE_DIR}/include
-        PRIVATE ${PROJECT_SOURCE_DIR}/kernels
-        PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+#Create a volk object library
+add_library(volk_obj OBJECT ${volk_sources})
+target_include_directories(volk_obj
+  PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+  PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+  PUBLIC $<INSTALL_INTERFACE:include>
+  PRIVATE ${PROJECT_SOURCE_DIR}/kernels
+  PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+  )
+
+#Add dynamic library
+add_library(volk SHARED $<TARGET_OBJECTS:volk_obj>)
+target_link_libraries(volk ${volk_libraries})
+target_include_directories(volk
+  PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+  PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+  PUBLIC $<INSTALL_INTERFACE:include>
+  PRIVATE ${PROJECT_SOURCE_DIR}/kernels
+  PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+  )
+
+#Configure target properties
+if(NOT MSVC)
+  set_target_properties(volk_obj PROPERTIES COMPILE_FLAGS "-fPIC")
+  target_link_libraries(volk m)
+endif()
+set_target_properties(volk PROPERTIES SOVERSION ${LIBVER})
+set_target_properties(volk PROPERTIES DEFINE_SYMBOL "volk_EXPORTS")
+
+
+#Install locations
+install(TARGETS volk
+  EXPORT VOLK-export
+  LIBRARY DESTINATION lib${LIB_SUFFIX} COMPONENT "volk_runtime" # .so file
+  ARCHIVE DESTINATION lib${LIB_SUFFIX} COMPONENT "volk_devel"   # .lib file
+  RUNTIME DESTINATION bin              COMPONENT "volk_runtime" # .dll file
+  )
+
+#Configure static library
+if(ENABLE_STATIC_LIBS)
+  add_library(volk_static STATIC $<TARGET_OBJECTS:volk_obj>)
+  target_link_libraries(volk_static ${volk_libraries} pthread)
+  if(NOT MSVC)
+    target_link_libraries(volk_static m)
+  endif()
+  target_include_directories(volk_static
+    PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+    PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    PUBLIC $<INSTALL_INTERFACE:include>
+    PRIVATE ${PROJECT_SOURCE_DIR}/kernels
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
     )
 
-    #Add dynamic library
-    add_library(volk SHARED $<TARGET_OBJECTS:volk_obj>)
-    target_link_libraries(volk ${volk_libraries} m)
-    target_include_directories(volk
-        PUBLIC ${PROJECT_BINARY_DIR}/include
-        PUBLIC ${PROJECT_SOURCE_DIR}/include
-        PRIVATE ${PROJECT_SOURCE_DIR}/kernels
-        PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+  set_target_properties(volk_static PROPERTIES OUTPUT_NAME volk)
+
+  install(TARGETS volk_static
+    EXPORT VOLK-export
+    ARCHIVE DESTINATION lib${LIB_SUFFIX} COMPONENT "volk_devel"
     )
+endif(ENABLE_STATIC_LIBS)
 
-    #Configure target properties
-    set_target_properties(volk_obj PROPERTIES COMPILE_FLAGS "-fPIC")
-    set_target_properties(volk PROPERTIES SOVERSION ${LIBVER})
-    set_target_properties(volk PROPERTIES DEFINE_SYMBOL "volk_EXPORTS")
-
-    #Install locations
-    install(TARGETS volk
-        LIBRARY DESTINATION lib${LIB_SUFFIX} COMPONENT "volk_runtime" # .so file
-        ARCHIVE DESTINATION lib${LIB_SUFFIX} COMPONENT "volk_devel"   # .lib file
-        RUNTIME DESTINATION bin              COMPONENT "volk_runtime" # .dll file
-    )
-
-    #Configure static library
-    if(ENABLE_STATIC_LIBS)
-        add_library(volk_static STATIC $<TARGET_OBJECTS:volk_obj>)
-        target_include_directories(volk_static
-            PUBLIC ${PROJECT_BINARY_DIR}/include
-            PUBLIC ${PROJECT_SOURCE_DIR}/include
-            PRIVATE ${PROJECT_SOURCE_DIR}/kernels
-            PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
-            PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
-        )
-
-        set_target_properties(volk_static PROPERTIES OUTPUT_NAME volk)
-
-        install(TARGETS volk_static
-            ARCHIVE DESTINATION lib${LIB_SUFFIX} COMPONENT "volk_devel"
-        )
-    endif(ENABLE_STATIC_LIBS)
-#Older cmake versions (slower to build when building dynamic/static libs)
-else()
-    #create the volk runtime library
-    add_library(volk SHARED ${volk_sources})
-    target_link_libraries(volk ${volk_libraries} m)
-    include_directories(volk
-        PUBLIC ${PROJECT_BINARY_DIR}/include
-        PUBLIC ${PROJECT_SOURCE_DIR}/include
-        PRIVATE ${PROJECT_SOURCE_DIR}/kernels
-        PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
-    )
-    set_target_properties(volk PROPERTIES SOVERSION ${LIBVER})
-    set_target_properties(volk PROPERTIES DEFINE_SYMBOL "volk_EXPORTS")
-
-    install(TARGETS volk
-        LIBRARY DESTINATION lib${LIB_SUFFIX} COMPONENT "volk_runtime" # .so file
-        ARCHIVE DESTINATION lib${LIB_SUFFIX} COMPONENT "volk_devel"   # .lib file
-        RUNTIME DESTINATION bin              COMPONENT "volk_runtime" # .dll file
-    )
-
-    if(ENABLE_STATIC_LIBS)
-        add_library(volk_static STATIC ${volk_sources})
-
-        if(NOT WIN32)
-            set_target_properties(volk_static
-                PROPERTIES OUTPUT_NAME volk)
-        endif(NOT WIN32)
-
-        install(TARGETS volk_static
-            ARCHIVE DESTINATION lib${LIB_SUFFIX} COMPONENT "volk_devel"   # .lib file
-        )
-    endif(ENABLE_STATIC_LIBS)
-
-endif(CMAKE_VERSION VERSION_GREATER "2.8.11")
 ########################################################################
 # Build the QA test application
 ########################################################################

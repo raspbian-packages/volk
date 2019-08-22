@@ -13,8 +13,6 @@ with preprocessor protections avoids problems.
  kernels/volk/volk_8u_x2_encodeframepolar_8u.h       | 3 ---
  3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/volk/volk_neon_intrinsics.h b/include/volk/volk_neon_intrinsics.h
-index 3f121a8..ef42dea 100644
 --- a/include/volk/volk_neon_intrinsics.h
 +++ b/include/volk/volk_neon_intrinsics.h
 @@ -27,6 +27,7 @@
@@ -24,15 +22,13 @@ index 3f121a8..ef42dea 100644
 +#ifdef LV_HAVE_NEON
  #include <arm_neon.h>
  
- static inline float32x4_t
-@@ -119,4 +120,5 @@ _vlog2q_f32(float32x4_t aval)
-   return log2_approx;
+ 
+@@ -75,4 +76,5 @@
+     return c_val;
  }
  
 +#endif /*LV_HAVE_NEON*/
  #endif /* INCLUDE_VOLK_VOLK_NEON_INTRINSICS_H_ */
-diff --git a/kernels/volk/volk_32f_8u_polarbutterflypuppet_32f.h b/kernels/volk/volk_32f_8u_polarbutterflypuppet_32f.h
-index 49a3076..4f84352 100644
 --- a/kernels/volk/volk_32f_8u_polarbutterflypuppet_32f.h
 +++ b/kernels/volk/volk_32f_8u_polarbutterflypuppet_32f.h
 @@ -31,6 +31,7 @@
@@ -43,11 +39,9 @@ index 49a3076..4f84352 100644
  
  
  static inline void
-diff --git a/kernels/volk/volk_8u_x2_encodeframepolar_8u.h b/kernels/volk/volk_8u_x2_encodeframepolar_8u.h
-index 6a605c6..ff729a8 100644
 --- a/kernels/volk/volk_8u_x2_encodeframepolar_8u.h
 +++ b/kernels/volk/volk_8u_x2_encodeframepolar_8u.h
-@@ -58,8 +58,6 @@ encodepolar_single_stage(unsigned char* frame_ptr, const unsigned char* temp_ptr
+@@ -58,8 +58,6 @@
    }
  }
  
@@ -56,7 +50,7 @@ index 6a605c6..ff729a8 100644
  static inline void
  volk_8u_x2_encodeframepolar_8u_generic(unsigned char* frame, unsigned char* temp,
                                         unsigned int frame_size)
-@@ -79,7 +77,6 @@ volk_8u_x2_encodeframepolar_8u_generic(unsigned char* frame, unsigned char* temp
+@@ -79,7 +77,6 @@
      --stage;
    }
  }
@@ -64,6 +58,3 @@ index 6a605c6..ff729a8 100644
  
  #ifdef LV_HAVE_SSSE3
  #include <tmmintrin.h>
--- 
-2.11.0
-

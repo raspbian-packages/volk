@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/gnuradio/volk.svg?branch=master)](https://travis-ci.org/gnuradio/volk)
+[![Build Status](https://travis-ci.org/gnuradio/volk.svg?branch=master)](https://travis-ci.org/gnuradio/volk) [![Build status](https://ci.appveyor.com/api/projects/status/5o56mgw0do20jlh3/branch/master?svg=true)](https://ci.appveyor.com/project/gnuradio/volk/branch/master)
 >
 > Copyright 2015 Free Software Foundation, Inc.
 >
@@ -24,10 +24,10 @@ Welcome to VOLK!
 
 VOLK is a sub-project of GNU Radio. Please see http://libvolk.org for bug
 tracking, documentation, source code, and contact information about VOLK.
-See http://gnuradio.org/ for information about GNU Radio.
+See https://www.gnuradio.org/ for information about GNU Radio.
 
 Bleeding edge code can be found in our git repository at
-http://gnuradio.org/git/volk.git/.
+https://www.gnuradio.org/git/volk.git/.
 
 How to use VOLK:
 
