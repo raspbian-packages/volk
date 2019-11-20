@@ -1,9 +1,15 @@
-volk (2.0.0-2+rpi1) bullseye-staging; urgency=medium
+volk (2.0.0-3+rpi1) bullseye-staging; urgency=medium
 
   [changes brought forward from 1.1-1+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Sun, 20 Sep 2015 20:30:19 +0000]
   * Disable neon.
 
- -- Peter Michael Green <plugwash@raspbian.org>  Thu, 22 Aug 2019 17:08:21 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Wed, 20 Nov 2019 05:46:20 +0000
+
+volk (2.0.0-3) unstable; urgency=medium
+
+  * update to v2.0.0-4-gf04a46f
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Thu, 14 Nov 2019 22:47:23 -0500
 
 volk (2.0.0-2) unstable; urgency=medium
 
