@@ -1,28 +1,24 @@
 Description: Disable neon.
 Author: Peter Michael Green <plugwash@raspbian.org>
 
-
---- volk-2.0.0.orig/lib/CMakeLists.txt
-+++ volk-2.0.0/lib/CMakeLists.txt
-@@ -284,9 +284,9 @@ endif(neon_compile_result)
- ########################################################################
- # if building Debian armel, eliminate neon
- ########################################################################
--if(${CMAKE_LIBRARY_ARCHITECTURE} STREQUAL "arm-linux-gnueabi")
--    OVERRULE_ARCH(neon "Architecture is not armhf")
--endif(${CMAKE_LIBRARY_ARCHITECTURE} STREQUAL "arm-linux-gnueabi")
-+#if(${CMAKE_LIBRARY_ARCHITECTURE} STREQUAL "arm-linux-gnueabi")
-+    OVERRULE_ARCH(neon "We don't want neon on raspbian")
-+#endif(${CMAKE_LIBRARY_ARCHITECTURE} STREQUAL "arm-linux-gnueabi")
+--- volk-2.1.0.orig/lib/CMakeLists.txt
++++ volk-2.1.0/lib/CMakeLists.txt
+@@ -273,7 +273,8 @@ else(neon_compile_result)
+     OVERRULE_ARCH(neonv8 "Compiler doesn't support NEON")
+ endif(neon_compile_result)
  
- ########################################################################
+-########################################################################
++OVERRULE_ARCH(neon "We don't want neon on raspbian")
++
  # implement overruling in the ORC case,
-@@ -457,7 +457,7 @@ if((${CMAKE_VERSION} VERSION_GREATER "2.
-   # set up the assembler flags and include the source files
-   foreach(ARCH ${ASM_ARCHS_AVAILABLE})
-       string(REGEX MATCH "${ARCH}" ASM_ARCH "${available_archs}")
--    if( ASM_ARCH STREQUAL "neonv7" )
-+    if( ASM_ARCH STREQUAL "neonv7xxxxx" )
-       message(STATUS "---- Adding ASM files") # we always use ATT syntax
-       message(STATUS "-- Detected neon architecture; enabling ASM")
-       # setup architecture specific assembler flags
+ # since ORC always passes flag detection
+ ########################################################################
+@@ -441,7 +442,7 @@ set(FULL_C_FLAGS "${CMAKE_C_FLAGS}" "${C
+ # set up the assembler flags and include the source files
+ foreach(ARCH ${ASM_ARCHS_AVAILABLE})
+   string(REGEX MATCH "${ARCH}" ASM_ARCH "${available_archs}")
+-if( ASM_ARCH STREQUAL "neonv7" )
++if( ASM_ARCH STREQUAL "neonv7xxxxxxxxxx" )
+   message(STATUS "---- Adding ASM files") # we always use ATT syntax
+   message(STATUS "-- Detected neon architecture; enabling ASM")
+   # architecture specific assembler flags are now set in the cmake toolchain file
