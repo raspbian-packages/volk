@@ -5,10 +5,6 @@ Maintainer: A. Maitland Bottoms <bottoms@debian.org>
 Build-Depends: cmake,
                debhelper (>= 12~),
                dh-python,
-               libboost-filesystem-dev,
-               libboost-program-options-dev,
-               libboost-system-dev,
-               libboost-test-dev,
                liborc-0.4-dev,
 	       python3-dev,
 	       python3-mako,
@@ -19,7 +15,7 @@ Homepage: http://libvolk.org
 Vcs-Browser: https://salsa.debian.org/bottoms/pkg-volk
 Vcs-Git: https://salsa.debian.org/bottoms/pkg-volk.git
 
-Package: libvolk2.0
+Package: libvolk2.1
 Section: libs
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
@@ -36,7 +32,7 @@ Description: vector optimized functions
 Package: libvolk2-dev
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
-Depends: libvolk2.0 (=${binary:Version}), ${misc:Depends}
+Depends: libvolk2.1 (=${binary:Version}), ${misc:Depends}
 Breaks: gnuradio-dev (<<3.7.8), libvolk-dev, libvolk1.0-dev, libvolk1-dev
 Replaces: gnuradio-dev (<<3.7.8), libvolk-dev, libvolk1.0-dev, libvolk1-dev
 Suggests: libvolk2-doc
@@ -54,7 +50,7 @@ Package: libvolk2-bin
 Section: libs
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
-Depends: libvolk2.0 (=${binary:Version}),
+Depends: libvolk2.1 (=${binary:Version}),
          ${misc:Depends},
          ${python3:Depends},
          ${shlibs:Depends}

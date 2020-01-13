@@ -18,15 +18,15 @@
 ########################################################################
 # Project setup
 ########################################################################
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.8)
 set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose build type: None Debug Release RelWithDebInfo MinSizeRel")
 project(volk)
 
 enable_language(CXX)
-set(CMAKE_CXX_STANDARD 11)
-
 enable_language(C)
+
 set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 11)
 
 enable_testing()
 
@@ -49,7 +49,7 @@ set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "")
 message(STATUS "Build type set to ${CMAKE_BUILD_TYPE}.")
 
 set(VERSION_INFO_MAJOR_VERSION 2)
-set(VERSION_INFO_MINOR_VERSION 0)
+set(VERSION_INFO_MINOR_VERSION 1)
 set(VERSION_INFO_MAINT_VERSION 0)
 include(VolkVersion) #setup version info
 
@@ -111,10 +111,21 @@ if(MSVC)
     endif(BOOST_ALL_DYN_LINK)
 endif(MSVC)
 
-include(VolkBoost)
+# Check if we have std::filesystem
+find_package(FILESYSTEM COMPONENTS Final Experimental)
 
-if(NOT Boost_FOUND)
-    message(FATAL_ERROR "VOLK Requires boost to build")
+#### Set C++ standard to 17 if std::filesystem is available
+if(${FILESYSTEM_FOUND})
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_EXTENSIONS OFF)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    set(Boost_LIBRARIES "")
+    set(Boost_INCLUDE_DIRS "")
+else()
+    include(VolkBoost)
+    if(NOT Boost_FOUND)
+        message(FATAL_ERROR "VOLK Requires boost to build")
+    endif()
 endif()
 
 # Orc
@@ -177,6 +188,7 @@ install(
 
 install(FILES
     ${CMAKE_SOURCE_DIR}/include/volk/volk_prefs.h
+    ${CMAKE_SOURCE_DIR}/include/volk/volk_alloc.hh
     ${CMAKE_SOURCE_DIR}/include/volk/volk_complex.h
     ${CMAKE_SOURCE_DIR}/include/volk/volk_common.h
     ${CMAKE_SOURCE_DIR}/include/volk/saturation_arithmetic.h

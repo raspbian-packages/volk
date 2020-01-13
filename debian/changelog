@@ -1,9 +1,28 @@
-volk (2.0.0-3+rpi1) bullseye-staging; urgency=medium
+volk (2.1.0-2+rpi1) bullseye-staging; urgency=medium
 
   [changes brought forward from 1.1-1+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Sun, 20 Sep 2015 20:30:19 +0000]
   * Disable neon.
 
- -- Raspbian forward porter <root@raspbian.org>  Wed, 20 Nov 2019 05:46:20 +0000
+ -- Peter Michael Green <plugwash@raspbian.org>  Mon, 13 Jan 2020 03:31:02 +0000
+
+volk (2.1.0-2) unstable; urgency=medium
+
+  * Upload to unstable
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Sun, 05 Jan 2020 23:17:57 -0500
+
+volk (2.1.0-1) experimental; urgency=medium
+
+  * New upstream release
+    - The AVX FMA rotator bug is fixed
+    - VOLK offers `volk::vector<>` for C++ to follow RAII
+    - Use C++17 `std::filesystem`
+        - This enables VOLK to be built without Boost if available!
+    - lots of bugfixes
+    - more optimized kernels, especially more NEON versions
+  * Upload to experimental for new ABI library package libvolk2.1
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Sun, 22 Dec 2019 10:27:36 -0500
 
 volk (2.0.0-3) unstable; urgency=medium
 

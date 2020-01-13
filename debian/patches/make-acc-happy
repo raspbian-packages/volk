@@ -15,7 +15,7 @@ with preprocessor protections avoids problems.
 
 --- a/include/volk/volk_neon_intrinsics.h
 +++ b/include/volk/volk_neon_intrinsics.h
-@@ -27,6 +27,7 @@
+@@ -55,6 +55,7 @@
  
  #ifndef INCLUDE_VOLK_VOLK_NEON_INTRINSICS_H_
  #define INCLUDE_VOLK_VOLK_NEON_INTRINSICS_H_
@@ -23,8 +23,8 @@ with preprocessor protections avoids problems.
  #include <arm_neon.h>
  
  
-@@ -75,4 +76,5 @@
-     return c_val;
+@@ -147,4 +148,5 @@
+     return poly;
  }
  
 +#endif /*LV_HAVE_NEON*/
