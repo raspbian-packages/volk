@@ -3,6 +3,9 @@ volk (2.1.0-2+rpi1) bullseye-staging; urgency=medium
   [changes brought forward from 1.1-1+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Sun, 20 Sep 2015 20:30:19 +0000]
   * Disable neon.
 
+  [changes introduced in 2.1.0-2+rpi1 by Peter Michael Green]
+  * Add bulid-depends-indep on texlive-latex-extra.
+
  -- Peter Michael Green <plugwash@raspbian.org>  Mon, 13 Jan 2020 03:31:02 +0000
 
 volk (2.1.0-2) unstable; urgency=medium

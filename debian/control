@@ -9,7 +9,7 @@ Build-Depends: cmake,
 	       python3-dev,
 	       python3-mako,
 	       python3-six
-Build-Depends-Indep: doxygen
+Build-Depends-Indep: doxygen, texlive-latex-extra,
 Standards-Version: 4.4.0
 Homepage: http://libvolk.org
 Vcs-Browser: https://salsa.debian.org/bottoms/pkg-volk
