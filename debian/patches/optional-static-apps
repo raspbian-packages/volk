@@ -1,6 +1,6 @@
 --- a/apps/CMakeLists.txt
 +++ b/apps/CMakeLists.txt
-@@ -56,7 +56,7 @@
+@@ -62,7 +62,7 @@
      target_link_libraries(volk_profile PRIVATE std::filesystem)
  endif()
  
@@ -9,7 +9,7 @@
      target_link_libraries(volk_profile PRIVATE volk_static)
      set_target_properties(volk_profile PROPERTIES LINK_FLAGS "-static")
  else()
-@@ -73,7 +73,7 @@
+@@ -79,7 +79,7 @@
  add_executable(volk-config-info volk-config-info.cc ${CMAKE_CURRENT_SOURCE_DIR}/volk_option_helpers.cc
          )
  

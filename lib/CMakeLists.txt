@@ -66,15 +66,12 @@ if(COMPILER_NAME MATCHES "GNU")
 endif()
 
 ########################################################################
-# check for posix_memalign, since some OSs do not internally define
-# _XOPEN_SOURCE or _POSIX_C_SOURCE; they leave this to the user.
+# POSIX_MEMALIGN: If we have to fall back to `posix_memalign`,
+# make it known to the compiler.
 ########################################################################
-
-include(CheckSymbolExists)
-CHECK_SYMBOL_EXISTS(posix_memalign stdlib.h HAVE_POSIX_MEMALIGN)
-
 if(HAVE_POSIX_MEMALIGN)
-      add_definitions(-DHAVE_POSIX_MEMALIGN)
+    message(STATUS "Use `posix_memalign` for aligned malloc!")
+    add_definitions(-DHAVE_POSIX_MEMALIGN)
 endif(HAVE_POSIX_MEMALIGN)
 
 ########################################################################
@@ -144,12 +141,13 @@ set(HAVE_AVX_CVTPI32_PS 0)
 if(CPU_IS_x86)
     # check to see if the compiler/linker works with xgetb instruction
     if (NOT MSVC)
-        file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/test_xgetbv.c "unsigned long long _xgetbv(unsigned int index) { unsigned int eax, edx; __asm__ __volatile__(\"xgetbv\" : \"=a\"(eax), \"=d\"(edx) : \"c\"(index)); return ((unsigned long long)edx << 32) | eax; } int main (void) { (void) _xgetbv(0); return (0); }")
+        file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/test_xgetbv.c "#include <volk/volk_common.h>\n unsigned long long _xgetbv(unsigned int index) { unsigned int eax, edx; __VOLK_ASM __VOLK_VOLATILE(\"xgetbv\" : \"=a\"(eax), \"=d\"(edx) : \"c\"(index)); return ((unsigned long long)edx << 32) | eax; } int main (void) { (void) _xgetbv(0); return (0); }")
+        set(_AUX_INCLUDE_FLAG -I${PROJECT_SOURCE_DIR}/include)
     else (NOT MSVC)
         #MSVC defines an intrinsic
         file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/test_xgetbv.c "#include <stdio.h> \n #include <intrin.h> \n int main() { int avxSupported = 0; \n#if (_MSC_FULL_VER >= 160040219) \nint cpuInfo[4]; __cpuid(cpuInfo, 1);\nif ((cpuInfo[2] & (1 << 27) || 0) && (cpuInfo[2] & (1 << 28) || 0)) \n{\nunsigned long long xcrFeatureMask = _xgetbv(_XCR_XFEATURE_ENABLED_MASK);\n   avxSupported = (xcrFeatureMask & 0x6) == 6;}\n#endif \n return 1- avxSupported; }")
     endif(NOT MSVC)
-    execute_process(COMMAND ${CMAKE_C_COMPILER} -o
+    execute_process(COMMAND ${CMAKE_C_COMPILER} ${_AUX_INCLUDE_FLAG} -o
         ${CMAKE_CURRENT_BINARY_DIR}/test_xgetbv
         ${CMAKE_CURRENT_BINARY_DIR}/test_xgetbv.c
         OUTPUT_QUIET ERROR_QUIET
@@ -255,17 +253,18 @@ check_c_source_compiles("#include <arm_neon.h>\nint main(){ uint8_t *dest; uint8
 	                neon_compile_result)
 
 if(neon_compile_result)
-    check_c_source_compiles("int main(){asm volatile(\"vrev32.8 q0, q0\");}"
+    set(CMAKE_REQUIRED_INCLUDES ${PROJECT_SOURCE_DIR}/include)
+    check_c_source_compiles("#include <volk/volk_common.h>\n int main(){__VOLK_ASM __VOLK_VOLATILE(\"vrev32.8 q0, q0\");}"
                             have_neonv7_result )
-    check_c_source_compiles("int main(){asm volatile(\"sub v1.4s,v1.4s,v1.4s\");}"
+    check_c_source_compiles("#include <volk/volk_common.h>\n int main(){__VOLK_ASM __VOLK_VOLATILE(\"sub v1.4s,v1.4s,v1.4s\");}"
                             have_neonv8_result )
 
-    if (have_neonv7_result)
-        OVERRULE_ARCH(neonv8 "CPU is armv7")
+    if (NOT have_neonv7_result)
+        OVERRULE_ARCH(neonv7 "Compiler doesn't support neonv7")
     endif()
 
-    if (have_neonv8_result)
-        OVERRULE_ARCH(neonv7 "CPU is armv8")
+    if (NOT have_neonv8_result)
+        OVERRULE_ARCH(neonv8 "Compiler doesn't support neonv8")
     endif()
 else(neon_compile_result)
     OVERRULE_ARCH(neon "Compiler doesn't support NEON")

@@ -1,4 +1,4 @@
-volk (2.1.0-2+rpi1) bullseye-staging; urgency=medium
+volk (2.2.0-2+rpi1) bullseye-staging; urgency=medium
 
   [changes brought forward from 1.1-1+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Sun, 20 Sep 2015 20:30:19 +0000]
   * Disable neon.
@@ -6,7 +6,22 @@ volk (2.1.0-2+rpi1) bullseye-staging; urgency=medium
   [changes introduced in 2.1.0-2+rpi1 by Peter Michael Green]
   * Add bulid-depends-indep on texlive-latex-extra.
 
- -- Peter Michael Green <plugwash@raspbian.org>  Mon, 13 Jan 2020 03:31:02 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Tue, 25 Feb 2020 03:07:45 +0000
+
+volk (2.2.0-2) unstable; urgency=medium
+
+  * Upload to unstable
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Tue, 18 Feb 2020 17:56:58 -0500
+
+volk (2.2.0-1) experimental; urgency=medium
+
+  * New upstream release
+    - Remove build dependency on python six
+    - Fixup VolkConfigVersion
+    - add volk_version.h
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Sun, 16 Feb 2020 18:25:20 -0500
 
 volk (2.1.0-2) unstable; urgency=medium
 

@@ -54,6 +54,16 @@ _mm256_complexconjugatemul_ps(__m256 x, __m256 y){
 }
 
 static inline __m256
+_mm256_normalize_ps(__m256 val)
+{
+  __m256 tmp1 = _mm256_mul_ps(val, val);
+  tmp1 = _mm256_hadd_ps(tmp1, tmp1);
+  tmp1 = _mm256_shuffle_ps(tmp1, tmp1, _MM_SHUFFLE(3, 1, 2, 0)); // equals 0xD8
+  tmp1 = _mm256_sqrt_ps(tmp1);
+  return _mm256_div_ps(val, tmp1);
+}
+
+static inline __m256
 _mm256_magnitudesquared_ps(__m256 cplxValue1, __m256 cplxValue2){
   __m256 complex1, complex2;
   cplxValue1 = _mm256_mul_ps(cplxValue1, cplxValue1); // Square the values
@@ -66,6 +76,19 @@ _mm256_magnitudesquared_ps(__m256 cplxValue1, __m256 cplxValue2){
 static inline __m256
 _mm256_magnitude_ps(__m256 cplxValue1, __m256 cplxValue2){
   return _mm256_sqrt_ps(_mm256_magnitudesquared_ps(cplxValue1, cplxValue2));
+}
+
+static inline __m256
+_mm256_scaled_norm_dist_ps(const __m256 symbols0, const __m256 symbols1, const __m256 points0, const __m256 points1, const __m256 scalar){
+  /*
+   * Calculate: |y - x|^2 * SNR_lin
+   * Consider 'symbolsX' and 'pointsX' to be complex float
+   * 'symbolsX' are 'y' and 'pointsX' are 'x'
+   */
+  const __m256 diff0 = _mm256_sub_ps(symbols0, points0);
+  const __m256 diff1 = _mm256_sub_ps(symbols1, points1);
+  const __m256 norms = _mm256_magnitudesquared_ps(diff0, diff1);
+  return _mm256_mul_ps(norms, scalar);
 }
 
 static inline __m256

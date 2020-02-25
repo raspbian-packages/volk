@@ -1,5 +1,5 @@
 #
-# Copyright 2011,2018,2019 Free Software Foundation, Inc.
+# Copyright 2011-2020 Free Software Foundation, Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,6 +30,19 @@ set(CMAKE_CXX_STANDARD 11)
 
 enable_testing()
 
+# Disable complex math NaN/INFO range checking for performance
+include(CheckCXXCompilerFlag)
+check_cxx_compiler_flag(-fcx-limited-range HAVE_CX_LIMITED_RANGE)
+if(HAVE_CX_LIMITED_RANGE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fcx-limited-range")
+endif(HAVE_CX_LIMITED_RANGE)
+
+include(CheckCCompilerFlag)
+check_c_compiler_flag(-fcx-limited-range HAVE_C_LIMITED_RANGE)
+if(HAVE_C_LIMITED_RANGE)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fcx-limited-range")
+endif(HAVE_C_LIMITED_RANGE)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 add_definitions(-D_GLIBCXX_USE_CXX11_ABI=1)
@@ -48,10 +61,33 @@ VOLK_CHECK_BUILD_TYPE(${CMAKE_BUILD_TYPE})
 set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "")
 message(STATUS "Build type set to ${CMAKE_BUILD_TYPE}.")
 
+########################################################################
+# Version setup
+########################################################################
+
 set(VERSION_INFO_MAJOR_VERSION 2)
-set(VERSION_INFO_MINOR_VERSION 1)
+set(VERSION_INFO_MINOR_VERSION 2)
 set(VERSION_INFO_MAINT_VERSION 0)
 include(VolkVersion) #setup version info
+
+macro(set_version_str VAR)
+  set(IN_VER ${VERSION_INFO_${VAR}_VERSION})
+  string(LENGTH "${IN_VER}" VER_LEN)
+  if(${VER_LEN} EQUAL 1)
+    set(VOLK_VERSION_${VAR} "0${IN_VER}")
+  else()
+    set(VOLK_VERSION_${VAR} "${IN_VER}")
+  endif()
+endmacro()
+
+set_version_str(MAJOR)
+set_version_str(MINOR)
+set_version_str(MAINT)
+
+configure_file(
+    ${CMAKE_SOURCE_DIR}/include/volk/volk_version.h.in
+    ${CMAKE_BINARY_DIR}/include/volk/volk_version.h
+@ONLY)
 
 ########################################################################
 # Environment setup
@@ -80,12 +116,11 @@ endif(MSVC)
 
 # Python
 include(VolkPython) #sets PYTHON_EXECUTABLE and PYTHON_DASH_B
-VOLK_PYTHON_CHECK_MODULE("python >= 2.7" sys "sys.version.split()[0] >= '2.7'" PYTHON_MIN_VER_FOUND)
+VOLK_PYTHON_CHECK_MODULE("python >= 3.4" sys "sys.version.split()[0] >= '3.4'" PYTHON_MIN_VER_FOUND)
 VOLK_PYTHON_CHECK_MODULE("mako >= 0.4.2" mako "mako.__version__ >= '0.4.2'" MAKO_FOUND)
-VOLK_PYTHON_CHECK_MODULE("six - python 2 and 3 compatibility library" six "True" SIX_FOUND)
 
 if(NOT PYTHON_MIN_VER_FOUND)
-    message(FATAL_ERROR "Python 2.7 or greater required to build VOLK")
+    message(FATAL_ERROR "Python 3.4 or greater required to build VOLK")
 endif()
 
 # Mako
@@ -93,10 +128,6 @@ if(NOT MAKO_FOUND)
     message(FATAL_ERROR "Mako templates required to build VOLK")
 endif()
 
-# Six
-if(NOT SIX_FOUND)
-    message(FATAL_ERROR "six - python 2 and 3 compatibility library required to build VOLK")
-endif()
 
 # Boost
 if(MSVC)
@@ -128,7 +159,22 @@ else()
     endif()
 endif()
 
-# Orc
+########################################################################
+# check for aligned_alloc, since some compilers lack this C11 feature.
+# For Apple-clang use `posix_memalign`
+# For MSVC use `_aligned_malloc`.
+########################################################################
+include(CheckSymbolExists)
+if(NOT (${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
+    CHECK_SYMBOL_EXISTS(aligned_alloc stdlib.h USE_ALIGNED_ALLOC)
+endif()
+if(NOT USE_ALIGNED_ALLOC)
+    CHECK_SYMBOL_EXISTS(posix_memalign stdlib.h HAVE_POSIX_MEMALIGN)
+endif()
+
+########################################################################
+# Check if Orc is available
+########################################################################
 option(ENABLE_ORC "Enable Orc" True)
 if(ENABLE_ORC)
   find_package(ORC)
@@ -202,6 +248,7 @@ install(FILES
     ${CMAKE_BINARY_DIR}/include/volk/volk_config_fixed.h
     ${CMAKE_BINARY_DIR}/include/volk/volk_typedefs.h
     ${CMAKE_SOURCE_DIR}/include/volk/volk_malloc.h
+    ${CMAKE_BINARY_DIR}/include/volk/volk_version.h
     ${CMAKE_SOURCE_DIR}/include/volk/constants.h
     DESTINATION include/volk
     COMPONENT "volk_devel"

@@ -14,17 +14,17 @@ Copyright: 2014-2019 Free Software Foundation, Inc.
 License: GPL-3+
 
 Files: *
-Copyright: 2006, 2009-2019, Free Software Foundation, Inc.
+Copyright: 2006, 2009-2020, Free Software Foundation, Inc.
 License: GPL-3+
 
 Files: Doxyfile.in
   DoxygenLayout.xml
   volk.pc.in
-Copyright: 2014-2019 Free Software Foundation, Inc.
+Copyright: 2014-2020 Free Software Foundation, Inc.
 License: GPL-3+
 
 Files: apps/volk_profile.h
-Copyright: 2014-2019 Free Software Foundation, Inc.
+Copyright: 2014-2020 Free Software Foundation, Inc.
 License: GPL-3+
 
 Files: appveyor.yml
@@ -32,11 +32,11 @@ Copyright: 2016 Paul Cercueil <paul.cercueil@analog.com>
 License: GPL-3+
 
 Files: cmake/*
-Copyright: 2014-2019 Free Software Foundation, Inc.
+Copyright: 2014-2020 Free Software Foundation, Inc.
 License: GPL-3+
 
 Files: cmake/Modules/*
-Copyright: 2006, 2009-2019, Free Software Foundation, Inc.
+Copyright: 2006, 2009-2020, Free Software Foundation, Inc.
 License: GPL-3+
 
 Files: cmake/Modules/CMakeParseArgumentsCopy.cmake

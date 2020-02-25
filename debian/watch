@@ -1,3 +1,4 @@
-version=3
-opts="pgpsigurlmangle=s/$/.asc/" \
-  http://libvolk.org/releases/volk-(\d\S*)\.tar\.gz
+version=4
+ opts="pgpsigurlmangle=s%$%.asc%,filenamemangle=s%(?:.*?)?volk-?(\d[\d.]*)\.tar\.xz%volk_$1.orig.tar.xz%" \
+ https://github.com/gnuradio/volk/releases \
+ (?:.*?/)?volk-?(\d[\d.]*)\.tar\.xz debian uupdate
