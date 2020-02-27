@@ -1,4 +1,4 @@
-volk (2.2.0-2+rpi1) bullseye-staging; urgency=medium
+volk (2.2.1-1+rpi1) bullseye-staging; urgency=medium
 
   [changes brought forward from 1.1-1+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Sun, 20 Sep 2015 20:30:19 +0000]
   * Disable neon.
@@ -6,7 +6,25 @@ volk (2.2.0-2+rpi1) bullseye-staging; urgency=medium
   [changes introduced in 2.1.0-2+rpi1 by Peter Michael Green]
   * Add bulid-depends-indep on texlive-latex-extra.
 
- -- Raspbian forward porter <root@raspbian.org>  Tue, 25 Feb 2020 03:07:45 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Thu, 27 Feb 2020 15:04:59 +0000
+
+volk (2.2.1-1) unstable; urgency=high
+
+  * New upstream bugfix release
+    reason for high urgency:
+    - Fix loop bound in AVX rotator (only one fixed in 2.2.0-3)
+    - Fix out-of-bounds read in AVX2 square dist kernel
+    - Fix length checks in AVX2 index max kernels
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Mon, 24 Feb 2020 18:08:05 -0500
+
+volk (2.2.0-3) unstable; urgency=high
+
+  * Update to v2.2.0-6-g5701f8f
+    reason for high urgency:
+    - Fix loop bound in AVX rotator
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Sun, 23 Feb 2020 23:49:18 -0500
 
 volk (2.2.0-2) unstable; urgency=medium
 
