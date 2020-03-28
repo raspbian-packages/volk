@@ -1,0 +1,11 @@
+0001-volk-accurate-exp-kernel.patch
+0002-exp-Rename-SSE4.1-to-SSE2-kernel.patch
+0003-clang-format-Apply-clang-format.patch
+0004-clang-format-Update-PR-with-GitHub-Action.patch
+0005-clang-format-Rebase-onto-current-master.patch
+0006-Fix-the-broken-index-max-kernels.patch
+0007-cmake-Remove-the-ORC-from-the-VOLK-public-link-inter.patch
+avoid-unnecessary-soversion-bump
+make-acc-happy
+optional-static-apps
+remove-external-HTML-resources
