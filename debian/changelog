@@ -1,4 +1,4 @@
-volk (2.2.1-1+rpi1) bullseye-staging; urgency=medium
+volk (2.2.1-2+rpi1) bullseye-staging; urgency=medium
 
   [changes brought forward from 1.1-1+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Sun, 20 Sep 2015 20:30:19 +0000]
   * Disable neon.
@@ -6,7 +6,15 @@ volk (2.2.1-1+rpi1) bullseye-staging; urgency=medium
   [changes introduced in 2.1.0-2+rpi1 by Peter Michael Green]
   * Add bulid-depends-indep on texlive-latex-extra.
 
- -- Raspbian forward porter <root@raspbian.org>  Thu, 27 Feb 2020 15:04:59 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Thu, 02 Apr 2020 18:19:28 +0000
+
+volk (2.2.1-2) unstable; urgency=medium
+
+  * update to v2.2.1-11-gfaf230e
+  * cmake: Remove the ORC from the VOLK public link interface
+  * Fix the broken index max kernels
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Fri, 27 Mar 2020 21:48:10 -0400
 
 volk (2.2.1-1) unstable; urgency=high
 
