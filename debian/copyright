@@ -5,7 +5,7 @@ Source:
  https://github.com/gnuradio/volk
 Comment:
  Debian packages by A. Maitland Bottoms <bottoms@debian.org>
- git archive --format=tar --prefix=volk-2.1.0/  v2.1.0  | xz > ../volk_2.1.0.orig.tar.xz
+ git archive --format=tar --prefix=volk-2.3.0/  v2.3.0  | xz > ../volk_2.3.0.orig.tar.xz
  .
  Upstream Maintainers:
   Johannes Demel <demel@uni-bremen.de>

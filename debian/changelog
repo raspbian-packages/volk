@@ -1,4 +1,4 @@
-volk (2.2.1-2+rpi1) bullseye-staging; urgency=medium
+volk (2.3.0-2+rpi1) bullseye-staging; urgency=medium
 
   [changes brought forward from 1.1-1+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Sun, 20 Sep 2015 20:30:19 +0000]
   * Disable neon.
@@ -6,7 +6,36 @@ volk (2.2.1-2+rpi1) bullseye-staging; urgency=medium
   [changes introduced in 2.1.0-2+rpi1 by Peter Michael Green]
   * Add bulid-depends-indep on texlive-latex-extra.
 
- -- Raspbian forward porter <root@raspbian.org>  Thu, 02 Apr 2020 18:19:28 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Sat, 16 May 2020 14:54:02 +0000
+
+volk (2.3.0-2) unstable; urgency=medium
+
+  * Upload to unstable
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Mon, 11 May 2020 07:26:03 -0400
+
+volk (2.3.0-1) experimental; urgency=medium
+
+  * New upstream release, to experimental for soversion bump
+  * Kernels
+    - volk: accurate exp kernel
+        - exp: Rename SSE4.1 to SSE2 kernel
+    - Add 32f_s32f_add_32f kernel
+        - This kernel adds in vector + scalar functionality
+    - Fix the broken index max kernels
+    - Treat the mod_range puppet as such
+    - Add puppet for power spectral density kernel
+    - Updated log10 calcs to use faster log2 approach
+    - fix: Use unaligned load
+    - divide: Optimize complexmultiplyconjugate
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Sat, 09 May 2020 15:42:23 -0400
+
+volk (2.2.1-3) unstable; urgency=medium
+
+  * update to v2.2.1-34-gd4756c5
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Sun, 05 Apr 2020 10:37:46 -0400
 
 volk (2.2.1-2) unstable; urgency=medium
 
