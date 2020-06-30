@@ -1,0 +1,62 @@
+From f246d4cf56ce74a0509dca116d6340beb157a823 Mon Sep 17 00:00:00 2001
+From: Christoph Mayer <hcab14@gmail.com>
+Date: Mon, 15 Jun 2020 18:07:40 +0200
+Subject: [PATCH 6/9] update to newest version of the Intel SDE
+
+---
+ .travis.yml                      |  5 ++---
+ scripts/ci/download_intel_sde.sh | 16 +++++-----------
+ 2 files changed, 7 insertions(+), 14 deletions(-)
+
+diff --git a/.travis.yml b/.travis.yml
+index dae3e50..2c0e769 100644
+--- a/.travis.yml
++++ b/.travis.yml
+@@ -11,9 +11,8 @@ addons:
+ 
+ env:
+   global:
+-    - SDE_VERSION=sde-external-8.35.0-2019-03-11-lin
+-    - SDE_URL1=https://software.intel.com/protected-download/267266/144917
+-    - SDE_URL2=https://software.intel.com/system/files/managed/32/db
++    - SDE_VERSION=sde-external-8.50.0-2020-03-26-lin
++    - SDE_URL=http://software.intel.com/content/dam/develop/external/us/en/protected/
+ 
+ matrix:
+   include:
+diff --git a/scripts/ci/download_intel_sde.sh b/scripts/ci/download_intel_sde.sh
+index 47e4093..2d5a8e3 100755
+--- a/scripts/ci/download_intel_sde.sh
++++ b/scripts/ci/download_intel_sde.sh
+@@ -16,23 +16,17 @@ function test_sde
+ mkdir -p cache
+ cd cache
+ 
+-[ -z "${SDE_VERSION}" ] && SDE_VERSION=sde-external-8.35.0-2019-03-11-lin
+-[ -z "${SDE_URL1}" ] && SDE_URL1=https://software.intel.com/protected-download/267266/144917
+-[ -z "${SDE_URL2}" ] && SDE_URL2=https://software.intel.com/system/files/managed/32/db
++[ -z "${SDE_VERSION}" ] && SDE_VERSION=sde-external-8.50.0-2020-03-26-lin
++[ -z "${SDE_URL}" ] && SDE_URL=http://software.intel.com/content/dam/develop/external/us/en/protected/
++[ -z "${SDE}" ] && SDE=${SDE_VERSION}/sde64
+ 
+-SDE_TARBALL=${SDE_VERSION}.tar.bz2
+-SDE=$(pwd)/${SDE_VERSION}/sde64
+ 
+ if [ _$(test_sde) == _0 ]; then
+     MSG="found working version: ${SDE_VERSION}"
+ else
+     MSG="downloading: ${SDE_VERSION}"
+-    curl --verbose --form accept_license=1 --form form_id=intel_licensed_dls_step_1 \
+-         --output /dev/null --cookie-jar jar.txt \
+-         --location ${SDE_URL1}
+-    curl --verbose --cookie jar.txt --output ${SDE_TARBALL} \
+-         ${SDE_URL2}/${SDE_TARBALL}
+-    tar xvf ${SDE_TARBALL}
++    wget ${SDE_URL}/${SDE_VERSION}.tar.bz2
++    tar xvf ${SDE_VERSION}.tar.bz2
+ fi
+ 
+ echo $SDE
+-- 
+2.20.1
+
