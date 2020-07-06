@@ -52,6 +52,21 @@ $ sudo make install
 $ volk_profile
 ```
 
+## Supported platforms
+VOLK aims to be portable to as many platforms as possible. We can only run tests on some platforms.
+
+### Hardware architectures
+Currently VOLK aims to run with optimized kernels on x86 with SSE/AVX and ARM with NEON.
+
+### OS / Distro
+We run tests on a variety of Ubuntu versions and aim to support as many current distros as possible.
+The same goal applies to different OSes. Although this does only happen rarely, it might occur that VOLK does not work on obsolete distros, e.g. Ubuntu 12.04.
+
+### Compilers
+We want to make sure VOLK works with C/C++ standard compliant compilers. Of course, as an open source project we focus on open source compilers, most notably GCC and Clang.
+We want to make sure VOLK compiles on a wide variety of compilers. Thus, we target AppleClang and MSVC as well. Mind that MSVC lacks `aligned_alloc` support for aligned arrays. We use MSVC specific instructions in this case which cannot be `free`'d with `free`.
+
+
 ## License
 
 >

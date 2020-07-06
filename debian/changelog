@@ -1,4 +1,4 @@
-volk (2.3.0-2+rpi1) bullseye-staging; urgency=medium
+volk (2.3.0-3+rpi1) bullseye-staging; urgency=medium
 
   [changes brought forward from 1.1-1+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Sun, 20 Sep 2015 20:30:19 +0000]
   * Disable neon.
@@ -6,7 +6,14 @@ volk (2.3.0-2+rpi1) bullseye-staging; urgency=medium
   [changes introduced in 2.1.0-2+rpi1 by Peter Michael Green]
   * Add bulid-depends-indep on texlive-latex-extra.
 
- -- Raspbian forward porter <root@raspbian.org>  Sat, 16 May 2020 14:54:02 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Mon, 06 Jul 2020 14:22:31 +0000
+
+volk (2.3.0-3) unstable; urgency=medium
+
+  * update to v2.3.0-14-g91e5d07
+    emit an emms instruction after using the mmx extension
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Tue, 30 Jun 2020 19:48:20 -0400
 
 volk (2.3.0-2) unstable; urgency=medium
 
