@@ -29,13 +29,36 @@ $ make
 $ make test
 $ sudo make install
 
+# You might want to explore "make -j[SOMEVALUE]" options for your multicore CPU.
+
+# Perform post-installation steps
+
+# Linux OS: Link and cache shared library
+$ sudo ldconfig
+
+# macOS/Windows: Update PATH environment variable to point to lib install location
+
 # volk_profile will profile your system so that the best kernel is used
 $ volk_profile
 ```
 
+#### Missing submodule
+We use [cpu_features](https://github.com/google/cpu_features) as a git submodule to detect CPU features, e.g. AVX.
+There are two options to get the required code:
+```bash
+git clone --recursive https://github.com/gnuradio/volk.git
+```
+will automatically clone submodules as well.
+In case you missed that, you can just run:
+```bash
+git submmodule update --init --recursive
+```
+that'll pull in missing submodules.
+
+
 ### Building on Raspberry Pi and other ARM boards
 
-To build for these boards you need specify the correct cmake toolchain file for best performace.
+To build for these boards you need specify the correct cmake toolchain file for best performance.
 
 * Raspberry Pi 4 `arm_cortex_a72_hardfp_native.cmake`
 * Raspberry Pi 3 `arm_cortex_a53_hardfp_native.cmake`

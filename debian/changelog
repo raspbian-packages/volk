@@ -1,4 +1,4 @@
-volk (2.3.0-3+rpi1) bullseye-staging; urgency=medium
+volk (2.4.0-3+rpi1) bullseye-staging; urgency=medium
 
   [changes brought forward from 1.1-1+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Sun, 20 Sep 2015 20:30:19 +0000]
   * Disable neon.
@@ -6,7 +6,28 @@ volk (2.3.0-3+rpi1) bullseye-staging; urgency=medium
   [changes introduced in 2.1.0-2+rpi1 by Peter Michael Green]
   * Add bulid-depends-indep on texlive-latex-extra.
 
- -- Raspbian forward porter <root@raspbian.org>  Mon, 06 Jul 2020 14:22:31 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Sun, 13 Dec 2020 08:13:14 +0000
+
+volk (2.4.0-3) unstable; urgency=medium
+
+  * Fix binary-indep build (Closes: #976300)
+  * Upload to unstable
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Thu, 03 Dec 2020 20:43:29 -0500
+
+volk (2.4.0-2) experimental; urgency=medium
+
+  * Make use of cpu_features a CMake option with sensible defaults per arch
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Mon, 30 Nov 2020 16:19:19 -0500
+
+volk (2.4.0-1) experimental; urgency=medium
+
+  * New upstream release
+  * cpu_features git submodule packaged as cpu-features source component.
+  * Upload to experimental for soversion bump
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Sun, 22 Nov 2020 12:35:43 -0500
 
 volk (2.3.0-3) unstable; urgency=medium
 
@@ -285,17 +306,17 @@ volk (1.1-1) unstable; urgency=medium
   New architectures exist for the AVX2 and FMA ISAs. Along
   with the build-system support the following kernels have
   no proto-kernels taking advantage of these architectures:
-  
+
   * 32f_x2_dot_prod_32f
   * 32fc_x2_multiply_32fc
   * 64_byteswap
   * 32f_binary_slicer_8i
   * 16u_byteswap
   * 32u_byteswap
-  
+
   QA/profiler
   -----------
-  
+
   The profiler now generates buffers that are vlen + a tiny
   amount and generates random data to fill buffers. This is
   intended to catch bugs in protokernels that write beyond
@@ -336,45 +357,45 @@ volk (1.0.1-1) unstable; urgency=low
   * Maintenance Release v1.0.1 08 Jul 2015 by Nathan West
     This is a maintenance release with bug fixes since the initial release of
     v1.0 in April.
-    
+
   * Contributors
-   
+
     The following authors have contributed code to this release:
-    
+
     Doug Geiger doug.geiger@bioradiation.net
     Elliot Briggs elliot.briggs@gmail.com
     Marcus Mueller marcus@hostalia.de
     Nathan West nathan.west@okstate.edu
     Tom Rondeau tom@trondeau.com
-   
+
   * Kernels
-   
+
     Several bug fixes in different kernels. The NEON implementations of the
     following kernels have been fixed:
-   
+
       32f_x2_add_32f
       32f_x2_dot_prod_32f
       32fc_s32fc_multiply_32fc
       32fc_x2_multiply_32fc
-   
+
    Additionally the NEON asm based 32f_x2_add_32f protokernels were not being
    used and are now included and available for use via the dispatcher.
-   
+
    The 32f_s32f_x2_fm_detect_32f kernel now has a puppet. This solves QA seg
    faults on 32-bit machines and provide a better test for this kernel.
-   
+
    The 32fc_s32fc_x2_rotator_32fc generic protokernel replaced cabsf with
    hypotf for better Android support.
 
   * Building
-   
+
     Static builds now trigger the applications (volk_profile and
     volk-config-info) to be statically linked.
-    
+
     The file gcc_x86_cpuid.h has been removed since it was no longer being
     used. Previously it provided cpuid functionality for ancient compilers
     that we do not support.
-    
+
     All build types now use -Wall.
 
   * QA and Testing
@@ -418,12 +439,12 @@ volk (1.0-1) unstable; urgency=low
 
   * Initial package (Closes: #782417)
   Initial Release 11 Apr 2015 by Nathan West
-  
+
   VOLK 1.0 is available. This is the first release of VOLK as an independently
   tracked sub-project of GNU Radio.
 
   * Contributors
-  
+
   VOLK has been tracked separately from GNU Radio since 2014 Dec 23.
   Contributors between the split and the initial release are
 
@@ -434,46 +455,46 @@ volk (1.0-1) unstable; urgency=low
   Michael Dickens michael.dickens@ettus.com
   Nathan West nathan.west@okstate.edu
   Tom Rondeau tom@trondeau.com
-  
+
   * QA
-  
+
   The test and profiler have significantly changed. The profiler supports
   run-time changes to vlen and iters to help kernel development and provide
   more flexibility on embedded systems. Additionally there is a new option
   to update an existing volk_profile results file with only new kernels which
   will save time when updating to newer versions of VOLK
-  
+
   The QA system creates a static list of kernels and test cases. The QA
   testing and profiler iterate over this static list rather than each source
   file keeping its own list. The QA also emits XML results to
   lib/.unittest/kernels.xml which is formatted similarly to JUnit results.
-  
+
   * Modtool
-  
+
   Modtool was updated to support the QA and profiler changes.
 
   * Kernels
-  
+
   New proto-kernels:
-  
+
   16ic_deinterleave_real_8i_neon
   16ic_s32f_deinterleave_32f_neon
   fix preprocessor errors for some compilers on byteswap and popcount puppets
-  
+
   ORC was moved to the asm kernels directory.
   volk_malloc
-  
+
   The posix_memalign implementation of Volk_malloc now falls back to a standard
   malloc if alignment is 1.
-  
+
   * Miscellaneous
-  
+
   Several build system and cmake changes have made it possible to build VOLK
   both independently with proper soname versions and in-tree for projects
   such as GNU Radio.
-  
+
   The static builds take advantage of cmake object libraries to speed up builds.
-  
+
   Finally, there are a number of changes to satisfy compiler warnings and make
   QA work on multiple machines.
 

@@ -1,13 +1,5 @@
-0001-readme-Add-section-on-supported-platforms.patch
-0002-readme-Make-supported-compiler-section-more-specific.patch
-0003-Test-the-rotator-kernel-with-a-realistic-scalar.patch
-0004-readme-Fix-wording.patch
-0005-emit-an-emms-instruction-after-using-the-mmx-extensi.patch
-0006-update-to-newest-version-of-the-Intel-SDE.patch
-0007-fix-Adjust-min-max-for-32f_s32f_convert_8i-kernel.patch
-0008-fix-Use-INT8_-instead-of-CHAR_.patch
-0009-docs-Fix-conversion-inaccuracy.patch
 make-acc-happy
 optional-static-apps
 remove-external-HTML-resources
+cpu_features-CMake-option
 disable-neon

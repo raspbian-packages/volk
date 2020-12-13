@@ -66,7 +66,7 @@ message(STATUS "Build type set to ${CMAKE_BUILD_TYPE}.")
 ########################################################################
 
 set(VERSION_INFO_MAJOR_VERSION 2)
-set(VERSION_INFO_MINOR_VERSION 3)
+set(VERSION_INFO_MINOR_VERSION 4)
 set(VERSION_INFO_MAINT_VERSION 0)
 include(VolkVersion) #setup version info
 
@@ -113,6 +113,26 @@ endif(MSVC)
 ########################################################################
 # Dependencies setup
 ########################################################################
+
+# cpu_features - sensible defaults, user settable option
+if(CMAKE_SYSTEM_PROCESSOR MATCHES
+    "(^mips)|(^arm)|(^aarch64)|(x86_64)|(AMD64|amd64)|(^i.86$)|(^powerpc)|(^ppc)")
+  option(VOLK_CPU_FEATURES "Volk uses cpu_features" ON)
+else()
+  option(VOLK_CPU_FEATURES "Volk uses cpu_features" OFF)
+endif()
+if (VOLK_CPU_FEATURES)
+  message(STATUS "Building Volk with cpu_features")
+  set(BUILD_PIC ON CACHE BOOL
+    "Build cpu_features with Position Independent Code (PIC)."
+    FORCE)
+  set(BUILD_SHARED_LIBS_SAVED "${BUILD_SHARED_LIBS}")
+  set(BUILD_SHARED_LIBS OFF)
+  add_subdirectory(cpu_features)
+  set(BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS_SAVED}")
+else()
+  message(STATUS "Building Volk without cpu_features")
+endif()
 
 # Python
 include(VolkPython) #sets PYTHON_EXECUTABLE and PYTHON_DASH_B
@@ -370,7 +390,10 @@ add_subdirectory(lib)
 # And the utility apps
 ########################################################################
 add_subdirectory(apps)
-add_subdirectory(python/volk_modtool)
+option(ENABLE_MODTOOL "Enable volk_modtool python utility" True)
+if(ENABLE_MODTOOL)
+  add_subdirectory(python/volk_modtool)
+endif()
 
 ########################################################################
 # Print summary

@@ -48,6 +48,13 @@ if(MSVC) #its not set otherwise
     set(COMPILER_NAME MSVC)
 endif()
 
+# Assume "AppleClang == Clang".
+string(TOLOWER ${COMPILER_NAME} COMPILER_NAME_LOWER)
+string(REGEX MATCH "clang" COMPILER_NAME_LOWER ${COMPILER_NAME_LOWER})
+if(${COMPILER_NAME_LOWER} MATCHES "clang")
+    set(COMPILER_NAME "Clang")
+endif()
+
 message(STATUS "Compiler name: ${COMPILER_NAME}")
 
 if(NOT DEFINED COMPILER_NAME)
@@ -131,36 +138,18 @@ macro(OVERRULE_ARCH arch reason)
     list(REMOVE_ITEM available_archs ${arch})
 endmacro(OVERRULE_ARCH)
 
+macro(FORCE_ARCH arch reason)
+  message(STATUS "${reason}, Forced arch ${arch}")
+  list(APPEND available_archs ${arch})
+endmacro(FORCE_ARCH)
+
 ########################################################################
 # eliminate AVX on if not on x86, or if the compiler does not accept
 # the xgetbv instruction, or {if not cross-compiling and the xgetbv
 # executable does not function correctly}.
 ########################################################################
-set(HAVE_XGETBV 0)
 set(HAVE_AVX_CVTPI32_PS 0)
 if(CPU_IS_x86)
-    # check to see if the compiler/linker works with xgetb instruction
-    if (NOT MSVC)
-        file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/test_xgetbv.c "#include <volk/volk_common.h>\n unsigned long long _xgetbv(unsigned int index) { unsigned int eax, edx; __VOLK_ASM __VOLK_VOLATILE(\"xgetbv\" : \"=a\"(eax), \"=d\"(edx) : \"c\"(index)); return ((unsigned long long)edx << 32) | eax; } int main (void) { (void) _xgetbv(0); return (0); }")
-        set(_AUX_INCLUDE_FLAG -I${PROJECT_SOURCE_DIR}/include)
-    else (NOT MSVC)
-        #MSVC defines an intrinsic
-        file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/test_xgetbv.c "#include <stdio.h> \n #include <intrin.h> \n int main() { int avxSupported = 0; \n#if (_MSC_FULL_VER >= 160040219) \nint cpuInfo[4]; __cpuid(cpuInfo, 1);\nif ((cpuInfo[2] & (1 << 27) || 0) && (cpuInfo[2] & (1 << 28) || 0)) \n{\nunsigned long long xcrFeatureMask = _xgetbv(_XCR_XFEATURE_ENABLED_MASK);\n   avxSupported = (xcrFeatureMask & 0x6) == 6;}\n#endif \n return 1- avxSupported; }")
-    endif(NOT MSVC)
-    execute_process(COMMAND ${CMAKE_C_COMPILER} ${_AUX_INCLUDE_FLAG} -o
-        ${CMAKE_CURRENT_BINARY_DIR}/test_xgetbv
-        ${CMAKE_CURRENT_BINARY_DIR}/test_xgetbv.c
-        OUTPUT_QUIET ERROR_QUIET
-        RESULT_VARIABLE avx_compile_result)
-    if(NOT ${avx_compile_result} EQUAL 0)
-        OVERRULE_ARCH(avx "Compiler or linker missing xgetbv instruction")
-    else()
-        # compiler/linker seems to work; assume working
-        set(HAVE_XGETBV 1)
-    endif()
-    file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/test_xgetbv
-        ${CMAKE_CURRENT_BINARY_DIR}/test_xgetbv.c)
-
     #########################################################################
     # eliminate AVX if cvtpi32_ps intrinsic fails like some versions of clang
     #########################################################################
@@ -195,10 +184,6 @@ if(CPU_IS_x86)
     endif("${CMAKE_C_COMPILER_ID}" MATCHES "Clang")
 
 endif(CPU_IS_x86)
-
-if(${HAVE_XGETBV})
-    add_definitions(-DHAVE_XGETBV)
-endif()
 
 if(${HAVE_AVX_CVTPI32_PS})
     add_definitions(-DHAVE_AVX_CVTPI32_PS)
@@ -278,12 +263,14 @@ if(NOT CROSSCOMPILE_MULTILIB AND CPU_IS_x86)
     endif()
 
     #MSVC 64 bit does not have MMX, overrule it
-    if (${SIZEOF_CPU} EQUAL 64 AND MSVC)
+    if (MSVC)
+      if (${SIZEOF_CPU} EQUAL 64)
         OVERRULE_ARCH(mmx "No MMX for Win64")
-	if (MSVC_VERSION GREATER 1700)
-            OVERRULE_ARCH(sse "No SSE for Win64 Visual Studio 2013")
-        endif()
+      endif()
+      FORCE_ARCH(sse "Built-in for MSVC > 2013")
+      FORCE_ARCH(sse2 "Built-in for MSVC > 2013")
     endif()
+
 
 endif()
 
@@ -528,6 +515,12 @@ target_include_directories(volk_obj
     PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
 )
+if(VOLK_CPU_FEATURES)
+  set_source_files_properties(volk_cpu.c PROPERTIES COMPILE_DEFINITIONS "VOLK_CPU_FEATURES=1")
+  target_include_directories(volk_obj
+    PRIVATE $<TARGET_PROPERTY:cpu_features,INTERFACE_INCLUDE_DIRECTORIES>
+)
+endif()
 
 #Configure object target properties
 if(NOT MSVC)
@@ -544,6 +537,9 @@ endif()
 #probably doesn't.
 add_library(volk SHARED $<TARGET_OBJECTS:volk_obj>)
 target_link_libraries(volk PUBLIC ${volk_libraries})
+if(VOLK_CPU_FEATURES)
+  target_link_libraries(volk PRIVATE cpu_features)
+endif()
 target_include_directories(volk
     PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
     PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
@@ -552,6 +548,7 @@ target_include_directories(volk
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
     PUBLIC $<INSTALL_INTERFACE:include>
 )
+
 
 #Configure target properties
 if(ORC_FOUND)

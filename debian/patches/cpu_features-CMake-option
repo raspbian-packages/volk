@@ -1,0 +1,105 @@
+From 21201840dc294affbfc173868bc55569ef114655 Mon Sep 17 00:00:00 2001
+From: "A. Maitland Bottoms" <bottoms@debian.org>
+Date: Tue, 1 Dec 2020 11:29:12 -0500
+Subject: [PATCH] cpu_features CMake option
+
+Make use of cpu_features a CMake option with sensible defaults per arch.
+(avoiding CMake failures of cpu_features for unknown architectures)
+---
+ CMakeLists.txt       | 23 +++++++++++++++++------
+ lib/CMakeLists.txt   | 12 ++++++++++--
+ tmpl/volk_cpu.tmpl.c |  2 ++
+ 3 files changed, 29 insertions(+), 8 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index eb73e20..f905230 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -114,14 +114,25 @@ endif(MSVC)
+ # Dependencies setup
+ ########################################################################
+ 
+-# cpu_features
+-set(BUILD_PIC ON CACHE BOOL
++# cpu_features - sensible defaults, user settable option
++if(CMAKE_SYSTEM_PROCESSOR MATCHES
++    "(^mips)|(^arm)|(^aarch64)|(x86_64)|(AMD64|amd64)|(^i.86$)|(^powerpc)|(^ppc)")
++  option(VOLK_CPU_FEATURES "Volk uses cpu_features" ON)
++else()
++  option(VOLK_CPU_FEATURES "Volk uses cpu_features" OFF)
++endif()
++if (VOLK_CPU_FEATURES)
++  message(STATUS "Building Volk with cpu_features")
++  set(BUILD_PIC ON CACHE BOOL
+     "Build cpu_features with Position Independent Code (PIC)."
+     FORCE)
+-set(BUILD_SHARED_LIBS_SAVED "${BUILD_SHARED_LIBS}")
+-set(BUILD_SHARED_LIBS OFF)
+-add_subdirectory(cpu_features)
+-set(BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS_SAVED}")
++  set(BUILD_SHARED_LIBS_SAVED "${BUILD_SHARED_LIBS}")
++  set(BUILD_SHARED_LIBS OFF)
++  add_subdirectory(cpu_features)
++  set(BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS_SAVED}")
++else()
++  message(STATUS "Building Volk without cpu_features")
++endif()
+ 
+ # Python
+ include(VolkPython) #sets PYTHON_EXECUTABLE and PYTHON_DASH_B
+diff --git a/lib/CMakeLists.txt b/lib/CMakeLists.txt
+index 7458530..9fbdb92 100644
+--- a/lib/CMakeLists.txt
++++ b/lib/CMakeLists.txt
+@@ -511,10 +511,15 @@ target_include_directories(volk_obj
+     PRIVATE $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+     PRIVATE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+     PRIVATE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/kernels>
+-    PRIVATE $<TARGET_PROPERTY:cpu_features,INTERFACE_INCLUDE_DIRECTORIES>
+     PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
+     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+ )
++if(VOLK_CPU_FEATURES)
++  set_source_files_properties(volk_cpu.c PROPERTIES COMPILE_DEFINITIONS "VOLK_CPU_FEATURES=1")
++  target_include_directories(volk_obj
++    PRIVATE $<TARGET_PROPERTY:cpu_features,INTERFACE_INCLUDE_DIRECTORIES>
++)
++endif()
+ 
+ #Configure object target properties
+ if(NOT MSVC)
+@@ -530,7 +535,10 @@ endif()
+ #include directories is taken as provided; it -might- matter, but
+ #probably doesn't.
+ add_library(volk SHARED $<TARGET_OBJECTS:volk_obj>)
+-target_link_libraries(volk PUBLIC ${volk_libraries} PRIVATE cpu_features)
++target_link_libraries(volk PUBLIC ${volk_libraries})
++if(VOLK_CPU_FEATURES)
++  target_link_libraries(volk PRIVATE cpu_features)
++endif()
+ target_include_directories(volk
+     PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+     PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+diff --git a/tmpl/volk_cpu.tmpl.c b/tmpl/volk_cpu.tmpl.c
+index 1266250..f879eb6 100644
+--- a/tmpl/volk_cpu.tmpl.c
++++ b/tmpl/volk_cpu.tmpl.c
+@@ -25,6 +25,7 @@
+ #include <string.h>
+ 
+ 
++#if defined(VOLK_CPU_FEATURES)
+ #include "cpu_features_macros.h"
+ #if defined(CPU_FEATURES_ARCH_X86)
+ #include "cpuinfo_x86.h"
+@@ -42,6 +43,7 @@
+ #if defined(__cplusplus)
+ using namespace cpu_features;
+ #endif
++#endif
+ 
+ 
+ struct VOLK_CPU volk_cpu;
+-- 
+2.20.1
+
