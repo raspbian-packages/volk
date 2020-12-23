@@ -1,5 +1,3 @@
-![VOLK Logo](/docs/volk_logo.png)
-
 # Welcome to VOLK!
 
 VOLK is a sub-project of GNU Radio. Please see http://libvolk.org for bug

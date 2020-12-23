@@ -67,7 +67,7 @@ message(STATUS "Build type set to ${CMAKE_BUILD_TYPE}.")
 
 set(VERSION_INFO_MAJOR_VERSION 2)
 set(VERSION_INFO_MINOR_VERSION 4)
-set(VERSION_INFO_MAINT_VERSION 0)
+set(VERSION_INFO_MAINT_VERSION 1)
 include(VolkVersion) #setup version info
 
 macro(set_version_str VAR)
@@ -115,13 +115,18 @@ endif(MSVC)
 ########################################################################
 
 # cpu_features - sensible defaults, user settable option
-if(CMAKE_SYSTEM_PROCESSOR MATCHES
-    "(^mips)|(^arm)|(^aarch64)|(x86_64)|(AMD64|amd64)|(^i.86$)|(^powerpc)|(^ppc)")
+message(STATUS "Building Volk for ${CMAKE_SYSTEM_NAME} on ${CMAKE_SYSTEM_PROCESSOR}")
+if((CMAKE_SYSTEM_PROCESSOR MATCHES
+      "(^mips)|(^arm)|(^aarch64)|(x86_64)|(AMD64|amd64)|(^i.86$)|(^powerpc)|(^ppc)")
+    AND (NOT CMAKE_SYSTEM_NAME MATCHES "kFreeBSD"))
   option(VOLK_CPU_FEATURES "Volk uses cpu_features" ON)
 else()
   option(VOLK_CPU_FEATURES "Volk uses cpu_features" OFF)
 endif()
 if (VOLK_CPU_FEATURES)
+  if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/cpu_features/CMakeLists.txt" )
+    message(FATAL_ERROR "cpu_features/CMakeLists.txt not found. Did you forget to git clone recursively?\nFix with: git submodule update --init")
+  endif()
   message(STATUS "Building Volk with cpu_features")
   set(BUILD_PIC ON CACHE BOOL
     "Build cpu_features with Position Independent Code (PIC)."
@@ -218,6 +223,13 @@ if(DOXYGEN_FOUND)
         COMMENT "Generating documentation with Doxygen" VERBATIM
     )
 endif(DOXYGEN_FOUND)
+
+########################################################################
+# Detect /lib versus /lib64
+########################################################################
+if (${CMAKE_INSTALL_LIBDIR} MATCHES lib64)
+    set(LIB_SUFFIX 64)
+endif()
 
 ########################################################################
 # Setup the package config file

@@ -1,5 +1,5 @@
 make-acc-happy
 optional-static-apps
 remove-external-HTML-resources
-cpu_features-CMake-option
+skip-cpu_features-on-kfreebsd
 disable-neon
