@@ -1,0 +1,44 @@
+From a0837c094fa4725e3362e05da82e78233c104975 Mon Sep 17 00:00:00 2001
+From: AlexandreRouma <alexandre.rouma@gmail.com>
+Date: Thu, 30 Sep 2021 13:52:32 +0200
+Subject: [PATCH 55/73] asan: Fix volk_malloc alignment bug
+
+ASAN (the Address Sanitizer used by GCC) requires memory allocations to
+be a multiple of the alignment. To replicate the bug, use a version of
+libvolk without this fix, call volk_malloc() with a number of byte
+that's not a multiple of the alignment and compile it with the Address
+sanitizer enable (-fsanitize=address). The software will error out
+and complain about the alignement. This patch fixes it by adding the
+missing number of bytes to the size variable so that it becomes a
+multiple of the alignment.
+
+Signed-off-by: AlexandreRouma <alexandre.rouma@gmail.com>
+---
+ lib/volk_malloc.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/lib/volk_malloc.c b/lib/volk_malloc.c
+index 8e84c14..f489ef8 100644
+--- a/lib/volk_malloc.c
++++ b/lib/volk_malloc.c
+@@ -50,6 +50,17 @@
+ 
+ void* volk_malloc(size_t size, size_t alignment)
+ {
++    if ((size == 0) || (alignment == 0)) {
++        fprintf(stderr, "VOLK: Error allocating memory: either size or alignment is 0");
++        return NULL;
++    }
++    // Tweak size to satisfy ASAN (the GCC address sanitizer).
++    // Calling 'volk_malloc' might therefor result in the allocation of more memory than
++    // requested for correct alignment. Any allocation size change here will in general not
++    // impact the end result since initial size alignment is required either way.
++    if (size % alignment) {
++        size += alignment - (size % alignment);
++    }
+ #if HAVE_POSIX_MEMALIGN
+     // quoting posix_memalign() man page:
+     // "alignment must be a power of two and a multiple of sizeof(void *)"
+-- 
+2.30.2
+
