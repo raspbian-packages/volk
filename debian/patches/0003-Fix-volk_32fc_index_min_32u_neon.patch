@@ -1,0 +1,26 @@
+From ac395a54e62429ff043ba240986f27507a54df75 Mon Sep 17 00:00:00 2001
+From: Zlika <zlika_ese@hotmail.com>
+Date: Fri, 11 Jun 2021 16:46:51 +0200
+Subject: [PATCH 03/73] Fix volk_32fc_index_min_32u_neon
+
+Signed-off-by: Zlika <zlika_ese@hotmail.com>
+---
+ kernels/volk/volk_32fc_index_min_32u.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/kernels/volk/volk_32fc_index_min_32u.h b/kernels/volk/volk_32fc_index_min_32u.h
+index 31eb094..545f9bf 100644
+--- a/kernels/volk/volk_32fc_index_min_32u.h
++++ b/kernels/volk/volk_32fc_index_min_32u.h
+@@ -480,7 +480,7 @@ volk_32fc_index_min_32u_neon(uint32_t* target, lv_32fc_t* src0, uint32_t num_poi
+         float min = FLT_MAX;
+         uint32_t index = 0;
+ 
+-        float32x4_t vec_min = vdupq_n_f32(*src0Ptr);
++        float32x4_t vec_min = vdupq_n_f32(FLT_MAX);
+ 
+         for (; number < quarter_points; number++) {
+             // Load complex and compute magnitude squared
+-- 
+2.30.2
+

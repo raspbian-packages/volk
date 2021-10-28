@@ -5,7 +5,7 @@ Author: A. Maitland Bottoms <bottoms@debian.org>
 
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -115,8 +115,10 @@
+@@ -133,8 +133,10 @@
  ########################################################################
  
  # cpu_features - sensible defaults, user settable option

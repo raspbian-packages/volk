@@ -3,9 +3,9 @@ Description: use system cpu_features package
 Author: Shengjing Zhu <zhsj@debian.org>
 Last-Update: 2020-12-26
 
---- volk-2.4.1.orig/CMakeLists.txt
-+++ volk-2.4.1/CMakeLists.txt
-@@ -124,17 +124,7 @@ else()
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -142,17 +142,7 @@
    option(VOLK_CPU_FEATURES "Volk uses cpu_features" OFF)
  endif()
  if (VOLK_CPU_FEATURES)
@@ -24,9 +24,9 @@ Last-Update: 2020-12-26
  else()
    message(STATUS "Building Volk without cpu_features")
  endif()
---- volk-2.4.1.orig/lib/CMakeLists.txt
-+++ volk-2.4.1/lib/CMakeLists.txt
-@@ -517,7 +517,7 @@ target_include_directories(volk_obj
+--- a/lib/CMakeLists.txt
++++ b/lib/CMakeLists.txt
+@@ -517,7 +517,7 @@
  if(VOLK_CPU_FEATURES)
    set_source_files_properties(volk_cpu.c PROPERTIES COMPILE_DEFINITIONS "VOLK_CPU_FEATURES=1")
    target_include_directories(volk_obj

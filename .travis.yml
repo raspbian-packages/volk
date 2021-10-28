@@ -26,50 +26,10 @@ matrix:
       before_script:
         - cd ${TRAVIS_BUILD_DIR} && ./scripts/ci/download_intel_sde.sh
 
-    # Job 2 ... gcc-4.8
-    - name: Linux Ubuntu 14.04 (trusty) x86 GCC 4.8
-      dist: trusty
-      env: MATRIX_EVAL="CC=gcc-4.8 && CXX=g++-4.8"
-      addons: {apt: {packages: [*common_packages, g++-4.8, libboost-system-dev, libboost-filesystem-dev]}}
-
     # Job 4 ... gcc-6
     - name: Linux x86 GCC 6
       env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
       addons: {apt: {sources: "ubuntu-toolchain-r-test", packages: [*common_packages, g++-6]}}
-
-    # Job 5 ... gcc-7
-    - name: Linux x86 GCC 7
-      env: MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-      addons: {apt: {sources: "ubuntu-toolchain-r-test", packages: [*common_packages, g++-7]}}
-
-    # Job 6 ... gcc-8
-    - name: Linux x86 GCC 8
-      env: MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
-      addons: {apt: {sources: "ubuntu-toolchain-r-test", packages: [*common_packages, g++-8]}}
-
-    # Job 6.1 ... gcc-9
-    - name: Linux Ubuntu 20.04 (focal) x86 GCC 9
-      dist: focal
-      env: MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
-      addons: {apt: {packages: [*common_packages, g++-9]}}
-
-    # Job 6.2 ... clang 9
-    - name: Linux Ubuntu 20.04 (focal) x86 Clang 8
-      dist: focal
-      env: MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
-      addons: {apt: {packages: [*common_packages, clang-8]}}
-
-    # Job 6.3 ... clang 9
-    - name: Linux Ubuntu 20.04 (focal) x86 Clang 9
-      dist: focal
-      env: MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
-      addons: {apt: {packages: [*common_packages, clang-9]}}
-
-    # Job 6.4 ... clang 10
-    - name: Linux Ubuntu 20.04 (focal) x86 Clang 10
-      dist: focal
-      env: MATRIX_EVAL="CC=clang-10 && CXX=clang++-10"
-      addons: {apt: {packages: [*common_packages, clang-10]}}
 
     # Job 7 ... ARMv7 cross compile
     - name: Linux ARMv7 Qemu GCC 7
@@ -96,30 +56,6 @@ matrix:
       env: MATRIX_EVAL="CC=clang && CXX=clang++"
       addons: {apt: {packages: [*common_packages, ]}}
 
-    - name: Linux ppc64le GCC
-      arch: ppc64le
-      env: MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-      addons: {apt: {packages: [*common_packages, ]}}
-
-    - name: Linux ppc64le Clang
-      arch: ppc64le
-      env: MATRIX_EVAL="CC=clang && CXX=clang++"
-      addons: {apt: {packages: [*common_packages,]}}
-
-    - name: Linux s390x GCC
-      arch: s390x
-      env: MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-      addons: {apt: {packages: [*common_packages, ]}}
-
-    - name: Linux s390x Clang
-      arch: s390x
-      env: MATRIX_EVAL="CC=clang && CXX=clang++"
-      addons: {apt: {packages: [*common_packages, ]}}
-
-  allow_failures:
-    - arch: s390x
-    - arch: ppc64le
-
 script:
   - eval "${MATRIX_EVAL}"
   - lscpu
@@ -127,4 +63,5 @@ script:
   - mkdir build && cd build && BOOST_ROOT=$BOOST_ROOT
   - cmake ${CMAKE_ARG} ../
   - make
+  - echo $(./apps/volk-config-info --malloc) && echo $(./apps/volk-config-info --alignment) && echo "All compiled VOLK machines:" $(./apps/volk-config-info --all-machines) && echo "Available VOLK machines:" $(./apps/volk-config-info --avail-machines)
   - ctest -V

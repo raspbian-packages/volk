@@ -7,7 +7,6 @@ export DEB_HOST_MULTIARCH
 	dh $@ --with python3
 
 override_dh_auto_configure:
-	- mv cpu-features/* cpu_features/
 	dh_auto_configure -- -DLIB_SUFFIX="/$(DEB_HOST_MULTIARCH)" \
 	-DENABLE_STATIC_LIBS=On -DPYTHON_EXECUTABLE=/usr/bin/python3 \
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo

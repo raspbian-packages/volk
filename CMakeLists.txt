@@ -30,6 +30,11 @@ set(CMAKE_CXX_STANDARD 11)
 
 enable_testing()
 
+
+########################################################################
+# Common compile flags
+########################################################################
+
 # Disable complex math NaN/INFO range checking for performance
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag(-fcx-limited-range HAVE_CX_LIMITED_RANGE)
@@ -46,6 +51,19 @@ endif(HAVE_C_LIMITED_RANGE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 add_definitions(-D_GLIBCXX_USE_CXX11_ABI=1)
+
+if(CMAKE_C_COMPILER_ID MATCHES "Clang|GNU")
+    # Abort compilation if kernel implementations have inconsistent function
+    # prototypes, i.e. if
+    #
+    #     kernel_foo_sse(uint32_t *dst, lv32fc_t *src)
+    #     kernel_foo_avx(uint16_t *dst, lv32fc_t *src)
+    #
+    # are defined. Note the different data type of the first argument). By
+    # default 'incompatible-pointer-types' is a warning only and 'pointer-sign'
+    # is a warning enabled by '-Wall'. These warnings are only applicable to C.
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror=incompatible-pointer-types -Werror=pointer-sign")
+endif()
 
 set(CMAKE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}) #allows this to be a sub-project
 set(CMAKE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}) #allows this to be a sub-project
@@ -66,8 +84,8 @@ message(STATUS "Build type set to ${CMAKE_BUILD_TYPE}.")
 ########################################################################
 
 set(VERSION_INFO_MAJOR_VERSION 2)
-set(VERSION_INFO_MINOR_VERSION 4)
-set(VERSION_INFO_MAINT_VERSION 1)
+set(VERSION_INFO_MINOR_VERSION 5)
+set(VERSION_INFO_MAINT_VERSION 0)
 include(VolkVersion) #setup version info
 
 macro(set_version_str VAR)
@@ -131,7 +149,7 @@ endif()
 
 # Python
 include(VolkPython) #sets PYTHON_EXECUTABLE and PYTHON_DASH_B
-VOLK_PYTHON_CHECK_MODULE("python >= 3.4" sys "sys.version.split()[0] >= '3.4'" PYTHON_MIN_VER_FOUND)
+VOLK_PYTHON_CHECK_MODULE("python >= 3.4" sys "sys.version_info >= (3, 4)" PYTHON_MIN_VER_FOUND)
 VOLK_PYTHON_CHECK_MODULE("mako >= 0.4.2" mako "mako.__version__ >= '0.4.2'" MAKO_FOUND)
 
 if(NOT PYTHON_MIN_VER_FOUND)

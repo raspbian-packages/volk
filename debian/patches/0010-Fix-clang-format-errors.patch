@@ -1,0 +1,57 @@
+From c68e666420a840cbdeb9529f23af19b6c8e37391 Mon Sep 17 00:00:00 2001
+From: Zlika <zlika_ese@hotmail.com>
+Date: Mon, 5 Jul 2021 13:08:29 +0200
+Subject: [PATCH 10/73] Fix clang-format errors
+
+Signed-off-by: Zlika <zlika_ese@hotmail.com>
+---
+ kernels/volk/volk_32f_index_min_32u.h | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
+
+diff --git a/kernels/volk/volk_32f_index_min_32u.h b/kernels/volk/volk_32f_index_min_32u.h
+index c71ee60..92bafbf 100644
+--- a/kernels/volk/volk_32f_index_min_32u.h
++++ b/kernels/volk/volk_32f_index_min_32u.h
+@@ -101,8 +101,7 @@ static inline void volk_32f_index_min_32u_a_sse4_1(uint32_t* target,
+ 
+         compareResults = _mm_cmplt_ps(currentValues, minValues);
+ 
+-        minValuesIndex =
+-            _mm_blendv_ps(minValuesIndex, currentIndexes, compareResults);
++        minValuesIndex = _mm_blendv_ps(minValuesIndex, currentIndexes, compareResults);
+         minValues = _mm_blendv_ps(minValues, currentValues, compareResults);
+     }
+ 
+@@ -225,8 +224,7 @@ volk_32f_index_min_32u_a_avx(uint32_t* target, const float* source, uint32_t num
+         inputPtr += 8;
+         currentIndexes = _mm256_add_ps(currentIndexes, indexIncrementValues);
+         compareResults = _mm256_cmp_ps(currentValues, minValues, _CMP_LT_OS);
+-        minValuesIndex =
+-            _mm256_blendv_ps(minValuesIndex, currentIndexes, compareResults);
++        minValuesIndex = _mm256_blendv_ps(minValuesIndex, currentIndexes, compareResults);
+         minValues = _mm256_blendv_ps(minValues, currentValues, compareResults);
+     }
+ 
+@@ -376,8 +374,7 @@ volk_32f_index_min_32u_u_avx(uint32_t* target, const float* source, uint32_t num
+         inputPtr += 8;
+         currentIndexes = _mm256_add_ps(currentIndexes, indexIncrementValues);
+         compareResults = _mm256_cmp_ps(currentValues, minValues, _CMP_LT_OS);
+-        minValuesIndex =
+-            _mm256_blendv_ps(minValuesIndex, currentIndexes, compareResults);
++        minValuesIndex = _mm256_blendv_ps(minValuesIndex, currentIndexes, compareResults);
+         minValues = _mm256_blendv_ps(minValues, currentValues, compareResults);
+     }
+ 
+@@ -436,8 +433,7 @@ static inline void volk_32f_index_min_32u_u_sse4_1(uint32_t* target,
+         inputPtr += 4;
+         currentIndexes = _mm_add_ps(currentIndexes, indexIncrementValues);
+         compareResults = _mm_cmplt_ps(currentValues, minValues);
+-        minValuesIndex =
+-            _mm_blendv_ps(minValuesIndex, currentIndexes, compareResults);
++        minValuesIndex = _mm_blendv_ps(minValuesIndex, currentIndexes, compareResults);
+         minValues = _mm_blendv_ps(minValues, currentValues, compareResults);
+     }
+ 
+-- 
+2.30.2
+
