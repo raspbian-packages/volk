@@ -26,7 +26,7 @@ enable_language(CXX)
 enable_language(C)
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 enable_testing()
 
@@ -85,7 +85,7 @@ message(STATUS "Build type set to ${CMAKE_BUILD_TYPE}.")
 
 set(VERSION_INFO_MAJOR_VERSION 2)
 set(VERSION_INFO_MINOR_VERSION 5)
-set(VERSION_INFO_MAINT_VERSION 0)
+set(VERSION_INFO_MAINT_VERSION 1)
 include(VolkVersion) #setup version info
 
 macro(set_version_str VAR)
@@ -110,10 +110,6 @@ configure_file(
 ########################################################################
 # Environment setup
 ########################################################################
-IF(NOT DEFINED BOOST_ROOT AND NOT DEFINED ENV{BOOST_ROOT})
-    SET(BOOST_ROOT ${CMAKE_INSTALL_PREFIX})
-ENDIF()
-
 IF(NOT DEFINED CROSSCOMPILE_MULTILIB)
     SET(CROSSCOMPILE_MULTILIB "")
 ENDIF()
@@ -141,8 +137,27 @@ if((CMAKE_SYSTEM_PROCESSOR MATCHES
 else()
   option(VOLK_CPU_FEATURES "Volk uses cpu_features" OFF)
 endif()
+
 if (VOLK_CPU_FEATURES)
   find_package(CpuFeatures)
+  if(NOT CpuFeatures_FOUND)
+    message(STATUS "cpu_features package not found. Requiring cpu_features submodule ...")
+    if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/cpu_features/CMakeLists.txt" )
+      message(FATAL_ERROR "cpu_features/CMakeLists.txt not found. Did you forget to git clone recursively?\nFix with: git submodule update --init")
+    endif()
+    message(STATUS "Building Volk with cpu_features")
+    set(BUILD_TESTING OFF CACHE BOOL "Build cpu_features without tests." FORCE)
+    set(BUILD_PIC ON CACHE BOOL
+      "Build cpu_features with Position Independent Code (PIC)."
+      FORCE)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE BOOL
+      "Build cpu_features with Position Independent Code (PIC)."
+      FORCE)
+    set(BUILD_SHARED_LIBS_SAVED "${BUILD_SHARED_LIBS}")
+    set(BUILD_SHARED_LIBS OFF)
+    add_subdirectory(cpu_features)
+    set(BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS_SAVED}")
+  endif()
 else()
   message(STATUS "Building Volk without cpu_features")
 endif()
@@ -161,36 +176,12 @@ if(NOT MAKO_FOUND)
     message(FATAL_ERROR "Mako templates required to build VOLK")
 endif()
 
-
-# Boost
-if(MSVC)
-    if (NOT DEFINED BOOST_ALL_DYN_LINK)
-        set(BOOST_ALL_DYN_LINK TRUE)
-    endif()
-    set(BOOST_ALL_DYN_LINK "${BOOST_ALL_DYN_LINK}" CACHE BOOL "boost enable dynamic linking")
-    if(BOOST_ALL_DYN_LINK)
-        add_definitions(-DBOOST_ALL_DYN_LINK) #setup boost auto-linking in msvc
-    else(BOOST_ALL_DYN_LINK)
-        unset(BOOST_REQUIRED_COMPONENTS) #empty components list for static link
-    endif(BOOST_ALL_DYN_LINK)
-endif(MSVC)
-
 # Check if we have std::filesystem
-find_package(FILESYSTEM COMPONENTS Final Experimental)
+find_package(FILESYSTEM COMPONENTS Final Experimental REQUIRED)
 
-#### Set C++ standard to 17 if std::filesystem is available
-if(${FILESYSTEM_FOUND})
-    set(CMAKE_CXX_STANDARD 17)
-    set(CMAKE_CXX_EXTENSIONS OFF)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-    set(Boost_LIBRARIES "")
-    set(Boost_INCLUDE_DIRS "")
-else()
-    include(VolkBoost)
-    if(NOT Boost_FOUND)
-        message(FATAL_ERROR "VOLK Requires boost to build")
-    endif()
-endif()
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 
 ########################################################################
 # check for aligned_alloc, since some compilers lack this C11 feature.
@@ -413,6 +404,21 @@ add_subdirectory(apps)
 option(ENABLE_MODTOOL "Enable volk_modtool python utility" True)
 if(ENABLE_MODTOOL)
   add_subdirectory(python/volk_modtool)
+endif()
+
+########################################################################
+# And the LGPL license check
+########################################################################
+# detect default for LGPL
+if(VERSION_INFO_MAJOR_VERSION GREATER_EQUAL 3)
+  OPTION(ENABLE_LGPL "Enable testing for LGPL" ON)
+else()
+  OPTION(ENABLE_LGPL "Enable testing for LGPL" OFF)
+endif()
+
+if(ENABLE_TESTING AND ENABLE_LGPL)
+  message(STATUS "Checking for LGPL resubmission enabled")
+  add_test("check_lgpl" ${CMAKE_SOURCE_DIR}/scripts/licensing/count_contrib.sh ${CMAKE_SOURCE_DIR}/AUTHORS_RESUBMITTING_UNDER_LGPL_LICENSE.md)
 endif()
 
 ########################################################################
