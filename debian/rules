@@ -15,5 +15,9 @@ override_dh_auto_build-indep:
 	cmake --build obj-* --target all
 	cmake --build obj-* --target volk_doc
 
+override_dh_auto_install:
+	dh_auto_install
+	find debian -type d -empty -delete
+
 override_dh_auto_test:
 	- dh_auto_test -- CTEST_TEST_TIMEOUT=60

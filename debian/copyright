@@ -6,8 +6,7 @@ Source:
  https://github.com/google/cpu_features
 Comment:
  Debian packages by A. Maitland Bottoms <bottoms@debian.org>
- git archive --format=tar --prefix=volk-2.3.0/  v2.3.0  | xz > ../volk_2.3.0.orig.tar.xz
- git archive --format=tar --prefix=cpu_features/  v0.6.0  | xz > ../volk_2.4.0.orig-cpu_features.tar.xz
+ https://github.com/gnuradio/volk/releases/download/v2.5.1/volk-2.5.1.tar.xz
  .
  Upstream Maintainers:
   Johannes Demel <demel@uni-bremen.de>
@@ -160,22 +159,6 @@ Files: lib/kernel_tests.h
   lib/volk_prefs.c
 Copyright: 2014-2015 Free Software Foundation, Inc.
 License: GPL-3+
-
-License: LGPL-2+
- This library is free software; you can redistribute it and/or
- modify it under the terms of the GNU Library General Public
- License as published by the Free Software Foundation; either
- version 2 of the License, or (at your option) any later version.
- .
- This library is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- Library General Public License for more details.
- .
- You should have received a copy of the GNU Library General Public License
- along with this library; see the file COPYING.LIB.  If not, write to
- the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- Boston, MA 02110-1301, USA.
 
 License: GPL-3+
  This program is free software: you can redistribute it and/or modify

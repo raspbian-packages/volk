@@ -1,4 +1,4 @@
-volk (2.5.1-1+rpi1) bookworm-staging; urgency=medium
+volk (2.5.1-2+rpi1) bookworm-staging; urgency=medium
 
   [changes brought forward from 1.1-1+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Sun, 20 Sep 2015 20:30:19 +0000]
   * Disable neon.
@@ -6,7 +6,13 @@ volk (2.5.1-1+rpi1) bookworm-staging; urgency=medium
   [changes introduced in 2.1.0-2+rpi1 by Peter Michael Green]
   * Add bulid-depends-indep on texlive-latex-extra.
 
- -- Raspbian forward porter <root@raspbian.org>  Mon, 21 Feb 2022 11:37:54 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Mon, 18 Apr 2022 14:46:27 +0000
+
+volk (2.5.1-2) unstable; urgency=medium
+
+  * VolkPython use posix prefix scheme (Closes: #1009394)
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Tue, 12 Apr 2022 18:39:33 -0400
 
 volk (2.5.1-1) unstable; urgency=medium
 

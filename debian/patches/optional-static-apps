@@ -1,3 +1,7 @@
+Author: A. Maitland Bottoms <bottoms@debian.org>
+Description: optional static apps
+ Build apps with static libs if ENABLE_STATIC_APPS.
+
 --- a/apps/CMakeLists.txt
 +++ b/apps/CMakeLists.txt
 @@ -53,7 +53,7 @@
