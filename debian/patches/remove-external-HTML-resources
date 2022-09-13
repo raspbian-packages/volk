@@ -1,3 +1,7 @@
+Author: A. Maitland Bottoms <bottoms@debian.org>
+Description: remove external HTML resources
+ Debian packages should not generate traffic to external web services.
+
 --- a/README.md
 +++ b/README.md
 @@ -1,8 +1,3 @@

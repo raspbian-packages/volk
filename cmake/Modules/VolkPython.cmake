@@ -1,21 +1,9 @@
 # Copyright 2010-2011,2013 Free Software Foundation, Inc.
 #
-# This file is part of GNU Radio
+# This file is part of VOLK.
 #
-# GNU Radio is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3, or (at your option)
-# any later version.
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
-# GNU Radio is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with GNU Radio; see the file COPYING.  If not, write to
-# the Free Software Foundation, Inc., 51 Franklin Street,
-# Boston, MA 02110-1301, USA.
 
 if(DEFINED __INCLUDED_VOLK_PYTHON_CMAKE)
     return()
@@ -112,17 +100,32 @@ execute_process(
     COMMAND ${PYTHON_EXECUTABLE} -c "import os
 import sysconfig
 import site
+
 install_dir = None
+# The next line passes a CMake variable into our script.
 prefix = '${CMAKE_INSTALL_PREFIX}'
-#use sites when the prefix is already recognized
+
+# We use `site` to identify if our chosen prefix is a default one.
+# https://docs.python.org/3/library/site.html
 try:
-  paths = [p for p in site.getsitepackages() if p.startswith(prefix)]
-  if len(paths) == 1: install_dir = paths[0]
+    # https://docs.python.org/3/library/site.html#site.getsitepackages
+    paths = [p for p in site.getsitepackages() if p.startswith(prefix)]
+    if len(paths) == 1: install_dir = paths[0]
 except AttributeError: pass
+
+# If we found a default install path, `install_dir` is set.
 if not install_dir:
-    #find where to install the python module
-    install_dir = sysconfig.get_path('platlib','posix_prefix')
-    prefix = sysconfig.get_config_var('prefix')
+    # We use a custom install prefix!
+    # Determine the correct install path in that prefix on the current platform.
+    # For Python 3.11+, we could use the 'venv' scheme for all platforms
+    # https://docs.python.org/3.11/library/sysconfig.html#installation-paths
+    if os.name == 'nt':
+        scheme = 'nt'
+    else:
+        scheme = 'posix_prefix'
+    install_dir = sysconfig.get_path('platlib', scheme)
+    prefix = sysconfig.get_path('data', scheme)
+
 #strip the prefix to return a relative path
 print(os.path.relpath(install_dir, prefix))"
     OUTPUT_STRIP_TRAILING_WHITESPACE

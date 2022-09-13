@@ -2,22 +2,9 @@
 /*
  * Copyright 2016 Free Software Foundation, Inc.
  *
- * This file is part of GNU Radio
+ * This file is part of VOLK
  *
- * GNU Radio is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3, or (at your option)
- * any later version.
- *
- * GNU Radio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See thegit
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with GNU Radio; see the file COPYING.  If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street,
- * Boston, MA 02110-1301, USA.
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 /*!
@@ -163,20 +150,11 @@ static inline void volk_32fc_convert_16ic_a_sse2(lv_16sc_t* outputVector,
 #if LV_HAVE_NEONV7
 #include <arm_neon.h>
 
-#define VCVTRQ_S32_F32(res, val)                \
-    __VOLK_ASM("VCVTR.S32.F32 %[r0], %[v0]\n\t" \
-               : [r0] "=w"(res[0])              \
-               : [v0] "w"(val[0])               \
-               :);                              \
-    __VOLK_ASM("VCVTR.S32.F32 %[r1], %[v1]\n\t" \
-               : [r1] "=w"(res[1])              \
-               : [v1] "w"(val[1])               \
-               :);                              \
-    __VOLK_ASM("VCVTR.S32.F32 %[r2], %[v2]\n\t" \
-               : [r2] "=w"(res[2])              \
-               : [v2] "w"(val[2])               \
-               :);                              \
-    __VOLK_ASM("VCVTR.S32.F32 %[r3], %[v3]\n\t" : [r3] "=w"(res[3]) : [v3] "w"(val[3]) :);
+#define VCVTRQ_S32_F32(result, value)                                       \
+    __VOLK_ASM("VCVTR.S32.F32 %0, %1" : "=t"(result[0]) : "t"(value[0]) :); \
+    __VOLK_ASM("VCVTR.S32.F32 %0, %1" : "=t"(result[1]) : "t"(value[1]) :); \
+    __VOLK_ASM("VCVTR.S32.F32 %0, %1" : "=t"(result[2]) : "t"(value[2]) :); \
+    __VOLK_ASM("VCVTR.S32.F32 %0, %1" : "=t"(result[3]) : "t"(value[3]) :);
 
 static inline void volk_32fc_convert_16ic_neon(lv_16sc_t* outputVector,
                                                const lv_32fc_t* inputVector,

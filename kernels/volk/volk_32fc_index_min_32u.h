@@ -4,20 +4,7 @@
  *
  * This file is part of VOLK
  *
- * VOLK is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3, or (at your option)
- * any later version.
- *
- * VOLK is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with GNU Radio; see the file COPYING.  If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street,
- * Boston, MA 02110-1301, USA.
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 /*!
@@ -504,8 +491,9 @@ static inline void volk_32fc_index_min_32u_neon(uint32_t* target,
         for (uint32_t number = quarter_points * 4; number < num_points; number++) {
             const float re = lv_creal(*sourcePtr);
             const float im = lv_cimag(*sourcePtr);
-            if ((re * re + im * im) < min) {
-                min = *sourcePtr;
+            const float sq_dist = re * re + im * im;
+            if (sq_dist < min) {
+                min = sq_dist;
                 index = number;
             }
             sourcePtr++;

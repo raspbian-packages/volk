@@ -2,22 +2,9 @@
 /*
  * Copyright 2012, 2013, 2014 Free Software Foundation, Inc.
  *
- * This file is part of GNU Radio
+ * This file is part of VOLK
  *
- * GNU Radio is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3, or (at your option)
- * any later version.
- *
- * GNU Radio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with GNU Radio; see the file COPYING.  If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street,
- * Boston, MA 02110-1301, USA.
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 /*!
@@ -140,9 +127,7 @@ static inline void volk_32fc_x2_dot_prod_32fc_u_sse_64(lv_32fc_t* result,
         "  movq   %[rsi],  %%r9\n\t"
         "  movq   %[rdx], %%r10\n\t"
         "	xorps	%%xmm6, %%xmm6		# zero accumulators\n\t"
-        "	movups	0(%%r9), %%xmm0\n\t"
         "	xorps	%%xmm7, %%xmm7		# zero accumulators\n\t"
-        "	movups	0(%%r10), %%xmm2\n\t"
         "	shr	$5, %%rax		# rax = n_2_ccomplex_blocks / 2\n\t"
         "  shr     $4, %%r8\n\t"
         "	jmp	.%=L1_test\n\t"
@@ -168,8 +153,10 @@ static inline void volk_32fc_x2_dot_prod_32fc_u_sse_64(lv_32fc_t* result,
         "#	addps	%%xmmA, %%xmmC\n\t"
         "# A=xmm0, B=xmm2, Z=xmm4\n\t"
         "# A'=xmm1, B'=xmm3, Z'=xmm5\n\t"
+        "	movups	0(%%r9), %%xmm0\n\t"
         "	movups	16(%%r9), %%xmm1\n\t"
         "	movups	%%xmm0, %%xmm4\n\t"
+        "	movups	0(%%r10), %%xmm2\n\t"
         "	mulps	%%xmm2, %%xmm0\n\t"
         "	shufps	$0xb1, %%xmm4, %%xmm4	# swap internals\n\t"
         "	movups	16(%%r10), %%xmm3\n\t"
@@ -179,11 +166,9 @@ static inline void volk_32fc_x2_dot_prod_32fc_u_sse_64(lv_32fc_t* result,
         "	shufps	$0xb1, %%xmm5, %%xmm5	# swap internals\n\t"
         "	addps	%%xmm1, %%xmm6\n\t"
         "	mulps	%%xmm4, %%xmm2\n\t"
-        "	movups	32(%%r9), %%xmm0\n\t"
         "	addps	%%xmm2, %%xmm7\n\t"
         "	mulps	%%xmm5, %%xmm3\n\t"
         "	add	$32, %%r9\n\t"
-        "	movups	32(%%r10), %%xmm2\n\t"
         "	addps	%%xmm3, %%xmm7\n\t"
         "	add	$32, %%r10\n\t"
         ".%=L1_test:\n\t"
@@ -195,9 +180,9 @@ static inline void volk_32fc_x2_dot_prod_32fc_u_sse_64(lv_32fc_t* result,
         "	and	$1, %%r8\n\t"
         "	je	.%=Leven\n\t"
         "	# The count was odd, do 2 more taps.\n\t"
-        "	# Note that we've already got mm0/mm2 preloaded\n\t"
-        "	# from the main loop.\n\t"
+        "	movups	0(%%r9), %%xmm0\n\t"
         "	movups	%%xmm0, %%xmm4\n\t"
+        "	movups	0(%%r10), %%xmm2\n\t"
         "	mulps	%%xmm2, %%xmm0\n\t"
         "	shufps	$0xb1, %%xmm4, %%xmm4	# swap internals\n\t"
         "	addps	%%xmm0, %%xmm6\n\t"
@@ -605,9 +590,7 @@ static inline void volk_32fc_x2_dot_prod_32fc_a_sse_64(lv_32fc_t* result,
         "  movq   %[rsi],  %%r9\n\t"
         "  movq   %[rdx], %%r10\n\t"
         "	xorps	%%xmm6, %%xmm6		# zero accumulators\n\t"
-        "	movaps	0(%%r9), %%xmm0\n\t"
         "	xorps	%%xmm7, %%xmm7		# zero accumulators\n\t"
-        "	movaps	0(%%r10), %%xmm2\n\t"
         "	shr	$5, %%rax		# rax = n_2_ccomplex_blocks / 2\n\t"
         "  shr     $4, %%r8\n\t"
         "	jmp	.%=L1_test\n\t"
@@ -633,8 +616,10 @@ static inline void volk_32fc_x2_dot_prod_32fc_a_sse_64(lv_32fc_t* result,
         "#	addps	%%xmmA, %%xmmC\n\t"
         "# A=xmm0, B=xmm2, Z=xmm4\n\t"
         "# A'=xmm1, B'=xmm3, Z'=xmm5\n\t"
+        "	movaps	0(%%r9), %%xmm0\n\t"
         "	movaps	16(%%r9), %%xmm1\n\t"
         "	movaps	%%xmm0, %%xmm4\n\t"
+        "	movaps	0(%%r10), %%xmm2\n\t"
         "	mulps	%%xmm2, %%xmm0\n\t"
         "	shufps	$0xb1, %%xmm4, %%xmm4	# swap internals\n\t"
         "	movaps	16(%%r10), %%xmm3\n\t"
@@ -644,11 +629,9 @@ static inline void volk_32fc_x2_dot_prod_32fc_a_sse_64(lv_32fc_t* result,
         "	shufps	$0xb1, %%xmm5, %%xmm5	# swap internals\n\t"
         "	addps	%%xmm1, %%xmm6\n\t"
         "	mulps	%%xmm4, %%xmm2\n\t"
-        "	movaps	32(%%r9), %%xmm0\n\t"
         "	addps	%%xmm2, %%xmm7\n\t"
         "	mulps	%%xmm5, %%xmm3\n\t"
         "	add	$32, %%r9\n\t"
-        "	movaps	32(%%r10), %%xmm2\n\t"
         "	addps	%%xmm3, %%xmm7\n\t"
         "	add	$32, %%r10\n\t"
         ".%=L1_test:\n\t"
@@ -660,9 +643,9 @@ static inline void volk_32fc_x2_dot_prod_32fc_a_sse_64(lv_32fc_t* result,
         "	and	$1, %%r8\n\t"
         "	je	.%=Leven\n\t"
         "	# The count was odd, do 2 more taps.\n\t"
-        "	# Note that we've already got mm0/mm2 preloaded\n\t"
-        "	# from the main loop.\n\t"
+        "	movaps	0(%%r9), %%xmm0\n\t"
         "	movaps	%%xmm0, %%xmm4\n\t"
+        "	movaps	0(%%r10), %%xmm2\n\t"
         "	mulps	%%xmm2, %%xmm0\n\t"
         "	shufps	$0xb1, %%xmm4, %%xmm4	# swap internals\n\t"
         "	addps	%%xmm0, %%xmm6\n\t"

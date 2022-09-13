@@ -2,22 +2,9 @@
 /*
  * Copyright 2012, 2014 Free Software Foundation, Inc.
  *
- * This file is part of GNU Radio
+ * This file is part of VOLK
  *
- * GNU Radio is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3, or (at your option)
- * any later version.
- *
- * GNU Radio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with GNU Radio; see the file COPYING.  If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street,
- * Boston, MA 02110-1301, USA.
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 /*!
@@ -104,26 +91,23 @@ static inline void volk_32fc_x2_square_dist_32f_a_avx2(float* target,
 
     __m256i idx = _mm256_set_epi32(7, 6, 3, 2, 5, 4, 1, 0);
     xmm1 = _mm256_setzero_ps();
-    xmm2 = _mm256_load_ps((float*)&points[0]);
     xmm0 = _mm_load_ps((float*)src0);
     xmm0 = _mm_permute_ps(xmm0, 0b01000100);
     xmm1 = _mm256_insertf128_ps(xmm1, xmm0, 0);
     xmm1 = _mm256_insertf128_ps(xmm1, xmm0, 1);
-    xmm3 = _mm256_load_ps((float*)&points[4]);
 
     for (; i < bound; ++i) {
+        xmm2 = _mm256_load_ps((float*)&points[0]);
+        xmm3 = _mm256_load_ps((float*)&points[4]);
+        points += 8;
+
         xmm4 = _mm256_sub_ps(xmm1, xmm2);
         xmm5 = _mm256_sub_ps(xmm1, xmm3);
-        points += 8;
         xmm6 = _mm256_mul_ps(xmm4, xmm4);
         xmm7 = _mm256_mul_ps(xmm5, xmm5);
 
-        xmm2 = _mm256_load_ps((float*)&points[0]);
-
         xmm4 = _mm256_hadd_ps(xmm6, xmm7);
         xmm4 = _mm256_permutevar8x32_ps(xmm4, idx);
-
-        xmm3 = _mm256_load_ps((float*)&points[4]);
 
         _mm256_store_ps(target, xmm4);
 
@@ -350,26 +334,23 @@ static inline void volk_32fc_x2_square_dist_32f_u_avx2(float* target,
 
     __m256i idx = _mm256_set_epi32(7, 6, 3, 2, 5, 4, 1, 0);
     xmm1 = _mm256_setzero_ps();
-    xmm2 = _mm256_loadu_ps((float*)&points[0]);
     xmm0 = _mm_loadu_ps((float*)src0);
     xmm0 = _mm_permute_ps(xmm0, 0b01000100);
     xmm1 = _mm256_insertf128_ps(xmm1, xmm0, 0);
     xmm1 = _mm256_insertf128_ps(xmm1, xmm0, 1);
-    xmm3 = _mm256_loadu_ps((float*)&points[4]);
 
     for (; i < bound; ++i) {
+        xmm2 = _mm256_loadu_ps((float*)&points[0]);
+        xmm3 = _mm256_loadu_ps((float*)&points[4]);
+        points += 8;
+
         xmm4 = _mm256_sub_ps(xmm1, xmm2);
         xmm5 = _mm256_sub_ps(xmm1, xmm3);
-        points += 8;
         xmm6 = _mm256_mul_ps(xmm4, xmm4);
         xmm7 = _mm256_mul_ps(xmm5, xmm5);
 
-        xmm2 = _mm256_loadu_ps((float*)&points[0]);
-
         xmm4 = _mm256_hadd_ps(xmm6, xmm7);
         xmm4 = _mm256_permutevar8x32_ps(xmm4, idx);
-
-        xmm3 = _mm256_loadu_ps((float*)&points[4]);
 
         _mm256_storeu_ps(target, xmm4);
 

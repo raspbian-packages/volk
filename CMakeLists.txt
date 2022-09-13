@@ -1,18 +1,9 @@
 #
 # Copyright 2011-2020 Free Software Foundation, Inc.
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# This file is part of VOLK
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 
 ########################################################################
@@ -85,7 +76,7 @@ message(STATUS "Build type set to ${CMAKE_BUILD_TYPE}.")
 
 set(VERSION_INFO_MAJOR_VERSION 2)
 set(VERSION_INFO_MINOR_VERSION 5)
-set(VERSION_INFO_MAINT_VERSION 1)
+set(VERSION_INFO_MAINT_VERSION 2)
 include(VolkVersion) #setup version info
 
 macro(set_version_str VAR)
@@ -139,7 +130,7 @@ else()
 endif()
 
 if (VOLK_CPU_FEATURES)
-  find_package(CpuFeatures)
+  find_package(CpuFeatures QUIET)
   if(NOT CpuFeatures_FOUND)
     message(STATUS "cpu_features package not found. Requiring cpu_features submodule ...")
     if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/cpu_features/CMakeLists.txt" )
@@ -209,19 +200,7 @@ endif(ENABLE_ORC)
 ########################################################################
 # Setup doxygen
 ########################################################################
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
-    configure_file(
-        ${CMAKE_SOURCE_DIR}/Doxyfile.in
-        ${CMAKE_BINARY_DIR}/Doxyfile
-    @ONLY)
-
-    add_custom_target(volk_doc
-        ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        COMMENT "Generating documentation with Doxygen" VERBATIM
-    )
-endif(DOXYGEN_FOUND)
+add_subdirectory(docs)
 
 ########################################################################
 # Detect /lib versus /lib64
@@ -240,7 +219,7 @@ set(libdir "\${exec_prefix}/lib${LIB_SUFFIX}")
 set(includedir "\${prefix}/include")
 
 configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/volk.pc.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/tmpl/volk.pc.in
     ${CMAKE_CURRENT_BINARY_DIR}/volk.pc
 @ONLY)
 

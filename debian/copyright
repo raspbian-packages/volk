@@ -18,12 +18,6 @@ Files: *
 Copyright: 2006, 2009-2020, Free Software Foundation, Inc.
 License: GPL-3+
 
-Files: Doxyfile.in
-  DoxygenLayout.xml
-  volk.pc.in
-Copyright: 2014-2020 Free Software Foundation, Inc.
-License: GPL-3+
-
 Files: apps/volk_profile.h
 Copyright: 2014-2020 Free Software Foundation, Inc.
 License: GPL-3+

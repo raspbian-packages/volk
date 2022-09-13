@@ -2,5 +2,7 @@ make-acc-happy
 optional-static-apps
 skip-cpu_features-on-kfreebsd
 remove-external-HTML-resources
-volkpython-use-posix-prefix-scheme
+omit-build-paths
+omit-doxygen-build-paths
+update-doxygen
 disable-neon

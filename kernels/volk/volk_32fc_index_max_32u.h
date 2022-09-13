@@ -2,22 +2,9 @@
 /*
  * Copyright 2016, 2018-2020 Free Software Foundation, Inc.
  *
- * This file is part of GNU Radio
+ * This file is part of VOLK
  *
- * GNU Radio is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3, or (at your option)
- * any later version.
- *
- * GNU Radio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with GNU Radio; see the file COPYING.  If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street,
- * Boston, MA 02110-1301, USA.
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 /*!
@@ -477,10 +464,10 @@ volk_32fc_index_max_32u_neon(uint32_t* target, lv_32fc_t* src0, uint32_t num_poi
     uint32x4_t vec_max_indices = vec_indices;
 
     if (num_points) {
-        float max = *src0Ptr;
+        float max = FLT_MIN;
         uint32_t index = 0;
 
-        float32x4_t vec_max = vdupq_n_f32(*src0Ptr);
+        float32x4_t vec_max = vdupq_n_f32(FLT_MIN);
 
         for (; number < quarter_points; number++) {
             // Load complex and compute magnitude squared
@@ -509,8 +496,9 @@ volk_32fc_index_max_32u_neon(uint32_t* target, lv_32fc_t* src0, uint32_t num_poi
         for (number = quarter_points * 4; number < num_points; number++) {
             const float re = lv_creal(*src0Ptr);
             const float im = lv_cimag(*src0Ptr);
-            if ((re * re + im * im) > max) {
-                max = *src0Ptr;
+            const float sq_dist = re * re + im * im;
+            if (sq_dist > max) {
+                max = sq_dist;
                 index = number;
             }
             src0Ptr++;
