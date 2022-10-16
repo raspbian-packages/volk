@@ -1,8 +1,3 @@
-[![Build Status](https://travis-ci.com/gnuradio/volk.svg?branch=master)](https://travis-ci.com/gnuradio/volk) [![Build status](https://ci.appveyor.com/api/projects/status/5o56mgw0do20jlh3/branch/master?svg=true)](https://ci.appveyor.com/project/gnuradio/volk/branch/master)
-![Check PR Formatting](https://github.com/gnuradio/volk/workflows/Check%20PR%20Formatting/badge.svg)
-![Run VOLK tests](https://github.com/gnuradio/volk/workflows/Run%20VOLK%20tests/badge.svg)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3360942.svg)](https://doi.org/10.5281/zenodo.3360942)
-
 ![VOLK Logo](/docs/volk_logo.png)
 
 # Welcome to VOLK!
