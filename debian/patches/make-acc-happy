@@ -10,8 +10,7 @@ with preprocessor protections avoids problems.
 ---
  include/volk/volk_neon_intrinsics.h                 | 2 ++
  kernels/volk/volk_32f_8u_polarbutterflypuppet_32f.h | 1 +
- kernels/volk/volk_8u_x2_encodeframepolar_8u.h       | 3 ---
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ 2 files changed, 3 insertions(+)
 
 --- a/include/volk/volk_neon_intrinsics.h
 +++ b/include/volk/volk_neon_intrinsics.h
@@ -39,22 +38,3 @@ with preprocessor protections avoids problems.
  
  
  static inline void sanitize_bytes(unsigned char* u, const int elements)
---- a/kernels/volk/volk_8u_x2_encodeframepolar_8u.h
-+++ b/kernels/volk/volk_8u_x2_encodeframepolar_8u.h
-@@ -47,8 +47,6 @@
-     }
- }
- 
--#ifdef LV_HAVE_GENERIC
--
- static inline void volk_8u_x2_encodeframepolar_8u_generic(unsigned char* frame,
-                                                           unsigned char* temp,
-                                                           unsigned int frame_size)
-@@ -68,7 +66,6 @@
-         --stage;
-     }
- }
--#endif /* LV_HAVE_GENERIC */
- 
- #ifdef LV_HAVE_SSSE3
- #include <tmmintrin.h>
