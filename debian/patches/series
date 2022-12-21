@@ -1,0 +1,7 @@
+make-acc-happy
+optional-static-apps
+skip-cpu_features-on-kfreebsd
+remove-external-HTML-resources
+omit-build-paths
+omit-doxygen-build-paths
+update-doxygen
