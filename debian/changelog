@@ -1,4 +1,4 @@
-volk (2.5.2-2+rpi1) bookworm-staging; urgency=medium
+volk (2.5.2-3+rpi1) bookworm-staging; urgency=medium
 
   [changes brought forward from 1.1-1+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Sun, 20 Sep 2015 20:30:19 +0000]
   * Disable neon.
@@ -6,7 +6,14 @@ volk (2.5.2-2+rpi1) bookworm-staging; urgency=medium
   [changes introduced in 2.1.0-2+rpi1 by Peter Michael Green]
   * Add bulid-depends-indep on texlive-latex-extra.
 
- -- Raspbian forward porter <root@raspbian.org>  Mon, 31 Oct 2022 03:43:55 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Mon, 26 Dec 2022 05:46:28 +0000
+
+volk (2.5.2-3) unstable; urgency=medium
+
+  * orc 1:0.4.33-1 dropped building static library,
+  so now volk will drop building its static library too. (Closes: #1026593)
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Tue, 20 Dec 2022 20:03:23 -0500
 
 volk (2.5.2-2) unstable; urgency=medium
 
