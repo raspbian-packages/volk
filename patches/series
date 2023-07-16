@@ -1,0 +1,11 @@
+0001-ci-Remove-license-check.patch
+0002-license-Fix-SPDX-identifiers.patch
+# 0003-Use-cpu_features-on-RISC-V-platforms.patch
+0004-add-volk_32f_s32f_x2_convert_8u-kernel.patch
+0005-volk_32f_s32f_convert_8i-code-style.patch
+optional-static-apps
+skip-cpu_features-on-kfreebsd
+# remove-external-HTML-resources
+omit-build-paths
+omit-doxygen-build-paths
+update-doxygen
