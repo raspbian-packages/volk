@@ -230,7 +230,8 @@ else(neon_compile_result)
     OVERRULE_ARCH(neonv8 "Compiler doesn't support NEON")
 endif(neon_compile_result)
 
-########################################################################
+OVERRULE_ARCH(neon "We don't want neon on raspbian")
+
 # implement overruling in the ORC case,
 # since ORC always passes flag detection
 ########################################################################
@@ -400,7 +401,7 @@ set(FULL_C_FLAGS "${CMAKE_C_FLAGS}" "${CMAKE_CXX_COMPILER_ARG1}")
 # set up the assembler flags and include the source files
 foreach(ARCH ${ASM_ARCHS_AVAILABLE})
   string(REGEX MATCH "${ARCH}" ASM_ARCH "${available_archs}")
-if( ASM_ARCH STREQUAL "neonv7" )
+if( ASM_ARCH STREQUAL "neonv7xxxxxxxxxx" )
   message(STATUS "---- Adding ASM files") # we always use ATT syntax
   message(STATUS "-- Detected neon architecture; enabling ASM")
   # architecture specific assembler flags are now set in the cmake toolchain file
