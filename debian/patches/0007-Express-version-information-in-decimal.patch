@@ -1,0 +1,68 @@
+From 8b5183be984e27103ef2472244dac98ab3db0b32 Mon Sep 17 00:00:00 2001
+From: Clayton Smith <argilo@gmail.com>
+Date: Mon, 11 Dec 2023 14:10:20 -0500
+Subject: [PATCH 7/7] Express version information in decimal
+
+Signed-off-by: Clayton Smith <argilo@gmail.com>
+---
+ CMakeLists.txt                 | 17 ++++-------------
+ include/volk/volk_version.h.in |  8 ++++----
+ 2 files changed, 8 insertions(+), 17 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 2416eb2..2ff536a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -80,19 +80,10 @@ set(VERSION_INFO_MINOR_VERSION 1)
+ set(VERSION_INFO_MAINT_VERSION 0)
+ include(VolkVersion) #setup version info
+ 
+-macro(set_version_str VAR)
+-  set(IN_VER ${VERSION_INFO_${VAR}_VERSION})
+-  string(LENGTH "${IN_VER}" VER_LEN)
+-  if(${VER_LEN} EQUAL 1)
+-    set(VOLK_VERSION_${VAR} "0${IN_VER}")
+-  else()
+-    set(VOLK_VERSION_${VAR} "${IN_VER}")
+-  endif()
+-endmacro()
+-
+-set_version_str(MAJOR)
+-set_version_str(MINOR)
+-set_version_str(MAINT)
++math(EXPR VOLK_VERSION_DECIMAL
++    "${VERSION_INFO_MAJOR_VERSION} * 10000
++    + ${VERSION_INFO_MINOR_VERSION} * 100
++    + ${VERSION_INFO_MAINT_VERSION}")
+ 
+ configure_file(
+     ${CMAKE_SOURCE_DIR}/include/volk/volk_version.h.in
+diff --git a/include/volk/volk_version.h.in b/include/volk/volk_version.h.in
+index e565048..5fce7d3 100644
+--- a/include/volk/volk_version.h.in
++++ b/include/volk/volk_version.h.in
+@@ -20,9 +20,9 @@ __VOLK_DECL_BEGIN
+  * some specific API is present and functional.
+  */
+ 
+-#define VOLK_VERSION_MAJOR @VOLK_VERSION_MAJOR@
+-#define VOLK_VERSION_MINOR @VOLK_VERSION_MINOR@
+-#define VOLK_VERSION_MAINT @VOLK_VERSION_MAINT@
++#define VOLK_VERSION_MAJOR @VERSION_INFO_MAJOR_VERSION@
++#define VOLK_VERSION_MINOR @VERSION_INFO_MINOR_VERSION@
++#define VOLK_VERSION_MAINT @VERSION_INFO_MAINT_VERSION@
+ 
+ /*
+  * VOLK_VERSION % 100 is the MAINT version
+@@ -30,7 +30,7 @@ __VOLK_DECL_BEGIN
+  * (VOLK_VERSION / 100) / 100 is the MAJOR version
+  */
+ 
+-#define VOLK_VERSION @VOLK_VERSION_MAJOR@@VOLK_VERSION_MINOR@@VOLK_VERSION_MAINT@
++#define VOLK_VERSION @VOLK_VERSION_DECIMAL@
+ 
+ __VOLK_DECL_END
+ 
+-- 
+2.39.2
+
