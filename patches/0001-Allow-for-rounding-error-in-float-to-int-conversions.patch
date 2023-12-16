@@ -1,0 +1,31 @@
+From f9aed341bcf68cf68248e82c6ea883d937a9ab7e Mon Sep 17 00:00:00 2001
+From: Clayton Smith <argilo@gmail.com>
+Date: Fri, 8 Dec 2023 12:25:56 -0500
+Subject: [PATCH 1/6] Allow for rounding error in float-to-int conversions
+
+Signed-off-by: Clayton Smith <argilo@gmail.com>
+---
+ lib/kernel_tests.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/lib/kernel_tests.h b/lib/kernel_tests.h
+index 5ef3324..0f59de1 100644
+--- a/lib/kernel_tests.h
++++ b/lib/kernel_tests.h
+@@ -121,10 +121,10 @@ std::vector<volk_test_case_t> init_test_list(volk_test_params_t test_params)
+     QA(VOLK_INIT_TEST(volk_32fc_x2_multiply_conjugate_32fc, test_params))
+     QA(VOLK_INIT_TEST(volk_32fc_x2_divide_32fc, test_params))
+     QA(VOLK_INIT_TEST(volk_32fc_conjugate_32fc, test_params))
+-    QA(VOLK_INIT_TEST(volk_32f_s32f_convert_16i, test_params))
+-    QA(VOLK_INIT_TEST(volk_32f_s32f_convert_32i, test_params))
++    QA(VOLK_INIT_TEST(volk_32f_s32f_convert_16i, test_params.make_tol(1)))
++    QA(VOLK_INIT_TEST(volk_32f_s32f_convert_32i, test_params.make_tol(1)))
+     QA(VOLK_INIT_TEST(volk_32f_convert_64f, test_params))
+-    QA(VOLK_INIT_TEST(volk_32f_s32f_convert_8i, test_params))
++    QA(VOLK_INIT_TEST(volk_32f_s32f_convert_8i, test_params.make_tol(1)))
+     QA(VOLK_INIT_TEST(volk_32fc_convert_16ic, test_params))
+     QA(VOLK_INIT_TEST(volk_32fc_s32f_power_spectrum_32f, test_params.make_tol(2e-6)))
+     QA(VOLK_INIT_TEST(volk_32fc_x2_square_dist_32f, test_params))
+-- 
+2.39.2
+

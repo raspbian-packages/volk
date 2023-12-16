@@ -1,0 +1,26 @@
+From 1828eae1d2e4a758acf5131e004dc0cccec04c1e Mon Sep 17 00:00:00 2001
+From: Clayton Smith <argilo@gmail.com>
+Date: Fri, 8 Dec 2023 14:02:12 -0500
+Subject: [PATCH 2/6] Allow for rounding error in volk_32fc_s32f_magnitude_16i
+
+Signed-off-by: Clayton Smith <argilo@gmail.com>
+---
+ lib/kernel_tests.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/kernel_tests.h b/lib/kernel_tests.h
+index 5ef3324..d5f9442 100644
+--- a/lib/kernel_tests.h
++++ b/lib/kernel_tests.h
+@@ -113,7 +113,7 @@ std::vector<volk_test_case_t> init_test_list(volk_test_params_t test_params)
+     QA(VOLK_INIT_TEST(volk_32fc_index_max_32u, test_params))
+     QA(VOLK_INIT_TEST(volk_32fc_index_min_16u, test_params))
+     QA(VOLK_INIT_TEST(volk_32fc_index_min_32u, test_params))
+-    QA(VOLK_INIT_TEST(volk_32fc_s32f_magnitude_16i, test_params))
++    QA(VOLK_INIT_TEST(volk_32fc_s32f_magnitude_16i, test_params.make_tol(1)))
+     QA(VOLK_INIT_TEST(volk_32fc_magnitude_32f, test_params_inacc_tenth))
+     QA(VOLK_INIT_TEST(volk_32fc_magnitude_squared_32f, test_params))
+     QA(VOLK_INIT_TEST(volk_32fc_x2_add_32fc, test_params))
+-- 
+2.39.2
+
