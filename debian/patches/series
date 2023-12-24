@@ -1,12 +1,12 @@
-0001-ci-Remove-license-check.patch
-0002-license-Fix-SPDX-identifiers.patch
-# 0003-Use-cpu_features-on-RISC-V-platforms.patch
-0004-add-volk_32f_s32f_x2_convert_8u-kernel.patch
-0005-volk_32f_s32f_convert_8i-code-style.patch
+0001-Allow-for-rounding-error-in-float-to-int-conversions.patch
+0002-Allow-for-rounding-error-in-volk_32fc_s32f_magnitude.patch
+0003-Remove-broken-sse_32-kernels.patch
+0004-Fix-flaky-fm_detect-test.patch
+0005-Fix-flaky-mod_range-test.patch
+0006-Allow-for-rounding-error-in-float-to-int-interleave.patch
+0007-Express-version-information-in-decimal.patch
 optional-static-apps
-skip-cpu_features-on-kfreebsd
-# remove-external-HTML-resources
-omit-build-paths
 omit-doxygen-build-paths
 update-doxygen
+doxygen-pdf
 disable-neon

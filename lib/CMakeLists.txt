@@ -265,6 +265,19 @@ if(NOT CROSSCOMPILE_MULTILIB AND CPU_IS_x86)
 
 endif()
 
+if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^riscv64$")
+  message("---- Adding RISC-V ASM files")
+  message("DEBUG: looking for ASM files in ${CMAKE_SOURCE_DIR}/kernels/volk/asm/riscv")
+  include_directories(${CMAKE_SOURCE_DIR}/kernels/volk/asm/riscv)
+  file(GLOB asm_files ${CMAKE_SOURCE_DIR}/kernels/volk/asm/riscv/*.s)
+  foreach(asm_file ${asm_files})
+    list(APPEND volk_sources ${asm_file})
+    message(STATUS "Adding source file: ${asm_file}")
+  endforeach(asm_file)
+else()
+  OVERRULE_ARCH(riscv64 "machine is not riscv64")
+endif()
+
 ########################################################################
 # done overrules! print the result
 ########################################################################
@@ -509,15 +522,9 @@ target_include_directories(volk_obj
 )
 if(VOLK_CPU_FEATURES)
   set_source_files_properties(volk_cpu.c PROPERTIES COMPILE_DEFINITIONS "VOLK_CPU_FEATURES=1")
-  if(CpuFeatures_FOUND)
-    target_include_directories(volk_obj
-        PRIVATE $<TARGET_PROPERTY:CpuFeatures::cpu_features,INTERFACE_INCLUDE_DIRECTORIES>
-    )
-  else()
-    target_include_directories(volk_obj
-        PRIVATE $<TARGET_PROPERTY:cpu_features,INTERFACE_INCLUDE_DIRECTORIES>
-    )
-  endif()
+  target_include_directories(volk_obj
+      PRIVATE $<TARGET_PROPERTY:CpuFeatures::cpu_features,INTERFACE_INCLUDE_DIRECTORIES>
+  )
 endif()
 
 #Configure object target properties
@@ -536,7 +543,7 @@ endif()
 add_library(volk SHARED $<TARGET_OBJECTS:volk_obj>)
 target_link_libraries(volk PUBLIC ${volk_libraries})
 if(VOLK_CPU_FEATURES)
-  target_link_libraries(volk PRIVATE cpu_features)
+  target_link_libraries(volk PRIVATE $<BUILD_INTERFACE:CpuFeatures::cpu_features>)
 endif()
 target_include_directories(volk
     PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
@@ -579,7 +586,7 @@ if(ENABLE_STATIC_LIBS)
   add_library(volk_static STATIC $<TARGET_OBJECTS:volk_obj>)
   target_link_libraries(volk_static PUBLIC ${volk_libraries})
   if(VOLK_CPU_FEATURES)
-    target_link_libraries(volk_static PRIVATE cpu_features)
+    target_link_libraries(volk_static PRIVATE $<BUILD_INTERFACE:CpuFeatures::cpu_features>)
   endif()
   if(ORC_FOUND)
     target_link_libraries(volk_static PUBLIC ${ORC_LIBRARIES_STATIC})

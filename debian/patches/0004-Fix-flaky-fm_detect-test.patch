@@ -1,0 +1,70 @@
+From e6fa6a54bd79764cebc855f58ca4db32c25584a2 Mon Sep 17 00:00:00 2001
+From: Clayton Smith <argilo@gmail.com>
+Date: Fri, 8 Dec 2023 18:57:02 -0500
+Subject: [PATCH 4/6] Fix flaky fm_detect test
+
+Signed-off-by: Clayton Smith <argilo@gmail.com>
+---
+ kernels/volk/volk_32f_x2_fm_detectpuppet_32f.h | 8 ++++----
+ lib/kernel_tests.h                             | 5 +++--
+ 2 files changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/kernels/volk/volk_32f_x2_fm_detectpuppet_32f.h b/kernels/volk/volk_32f_x2_fm_detectpuppet_32f.h
+index e4196d5..b490154 100644
+--- a/kernels/volk/volk_32f_x2_fm_detectpuppet_32f.h
++++ b/kernels/volk/volk_32f_x2_fm_detectpuppet_32f.h
+@@ -20,7 +20,7 @@ static inline void volk_32f_x2_fm_detectpuppet_32f_a_avx(float* outputVector,
+                                                          float* saveValue,
+                                                          unsigned int num_points)
+ {
+-    const float bound = 1.0f;
++    const float bound = 2.0f;
+ 
+     volk_32f_s32f_32f_fm_detect_32f_a_avx(
+         outputVector, inputVector, bound, saveValue, num_points);
+@@ -35,7 +35,7 @@ static inline void volk_32f_x2_fm_detectpuppet_32f_a_sse(float* outputVector,
+                                                          float* saveValue,
+                                                          unsigned int num_points)
+ {
+-    const float bound = 1.0f;
++    const float bound = 2.0f;
+ 
+     volk_32f_s32f_32f_fm_detect_32f_a_sse(
+         outputVector, inputVector, bound, saveValue, num_points);
+@@ -49,7 +49,7 @@ static inline void volk_32f_x2_fm_detectpuppet_32f_generic(float* outputVector,
+                                                            float* saveValue,
+                                                            unsigned int num_points)
+ {
+-    const float bound = 1.0f;
++    const float bound = 2.0f;
+ 
+     volk_32f_s32f_32f_fm_detect_32f_generic(
+         outputVector, inputVector, bound, saveValue, num_points);
+@@ -73,7 +73,7 @@ static inline void volk_32f_x2_fm_detectpuppet_32f_u_avx(float* outputVector,
+                                                          float* saveValue,
+                                                          unsigned int num_points)
+ {
+-    const float bound = 1.0f;
++    const float bound = 2.0f;
+ 
+     volk_32f_s32f_32f_fm_detect_32f_u_avx(
+         outputVector, inputVector, bound, saveValue, num_points);
+diff --git a/lib/kernel_tests.h b/lib/kernel_tests.h
+index 5ef3324..c90e7d8 100644
+--- a/lib/kernel_tests.h
++++ b/lib/kernel_tests.h
+@@ -64,8 +64,9 @@ std::vector<volk_test_case_t> init_test_list(volk_test_params_t test_params)
+                       test_params_rotator))
+     QA(VOLK_INIT_PUPP(
+         volk_8u_conv_k7_r2puppet_8u, volk_8u_x4_conv_k7_r2_8u, test_params.make_tol(0)))
+-    QA(VOLK_INIT_PUPP(
+-        volk_32f_x2_fm_detectpuppet_32f, volk_32f_s32f_32f_fm_detect_32f, test_params))
++    QA(VOLK_INIT_PUPP(volk_32f_x2_fm_detectpuppet_32f,
++                      volk_32f_s32f_32f_fm_detect_32f,
++                      test_params.make_absolute(1e-6)))
+     QA(VOLK_INIT_TEST(volk_16ic_s32f_deinterleave_real_32f, test_params))
+     QA(VOLK_INIT_TEST(volk_16ic_deinterleave_real_8i, test_params))
+     QA(VOLK_INIT_TEST(volk_16ic_deinterleave_16i_x2, test_params))
+-- 
+2.39.2
+

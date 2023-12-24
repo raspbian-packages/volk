@@ -1,4 +1,9 @@
-<!-- archs appear in order of significance for blind, de-facto version ordering -->
+<!--
+Archs appear in order of significance for blind, de-facto version ordering.
+
+In other words when available, an arch further down will be used. "generic" is
+at the top, as a last resort.
+-->
 <grammar>
 
 <arch name="generic"> <!-- name is required-->
@@ -12,29 +17,6 @@
 <arch name="hardfp">
   <flag compiler="gnu">-mfloat-abi=hard</flag>
   <flag compiler="clang">-mfloat-abi=hard</flag>
-</arch>
-
-<arch name="neon">
-  <flag compiler="gnu">-funsafe-math-optimizations</flag>
-  <flag compiler="clang">-funsafe-math-optimizations</flag>
-  <alignment>16</alignment>
-  <check name="neon"></check>
-</arch>
-
-<arch name="neonv7">
-  <flag compiler="gnu">-mfpu=neon</flag>
-  <flag compiler="gnu">-funsafe-math-optimizations</flag>
-  <flag compiler="clang">-mfpu=neon</flag>
-  <flag compiler="clang">-funsafe-math-optimizations</flag>
-  <alignment>16</alignment>
-  <check name="neon"></check>
-</arch>
-
-<arch name="neonv8">
-  <flag compiler="gnu">-funsafe-math-optimizations</flag>
-  <flag compiler="clang">-funsafe-math-optimizations</flag>
-  <alignment>16</alignment>
-  <check name="neon"></check>
 </arch>
 
 <arch name="32">
@@ -98,6 +80,29 @@
 
 <!-- it's here for overrule stuff. -->
 <arch name="norc">
+</arch>
+
+<arch name="neon">
+  <flag compiler="gnu">-funsafe-math-optimizations</flag>
+  <flag compiler="clang">-funsafe-math-optimizations</flag>
+  <alignment>16</alignment>
+  <check name="neon"></check>
+</arch>
+
+<arch name="neonv7">
+  <flag compiler="gnu">-mfpu=neon</flag>
+  <flag compiler="gnu">-funsafe-math-optimizations</flag>
+  <flag compiler="clang">-mfpu=neon</flag>
+  <flag compiler="clang">-funsafe-math-optimizations</flag>
+  <alignment>16</alignment>
+  <check name="neon"></check>
+</arch>
+
+<arch name="neonv8">
+  <flag compiler="gnu">-funsafe-math-optimizations</flag>
+  <flag compiler="clang">-funsafe-math-optimizations</flag>
+  <alignment>16</alignment>
+  <check name="neon"></check>
 </arch>
 
 <arch name="sse3">
@@ -171,6 +176,9 @@
     <flag compiler="clang">-mavx512cd</flag>
     <flag compiler="msvc">/arch:AVX512CD</flag>
     <alignment>64</alignment>
+</arch>
+
+<arch name="riscv64">
 </arch>
 
 </grammar>

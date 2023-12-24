@@ -1,4 +1,5 @@
 Author: A. Maitland Bottoms <bottoms@debian.org>
+Forwarded: not-needed
 Description: optional static apps
  For Debian, build apps with static libs if ENABLE_STATIC_APPS.
 

@@ -1,4 +1,4 @@
-volk (3.0.0-2+rpi1) trixie-staging; urgency=medium
+volk (3.1.0-3+rpi1) trixie-staging; urgency=medium
 
   [changes brought forward from 1.1-1+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Sun, 20 Sep 2015 20:30:19 +0000]
   * Disable neon.
@@ -6,7 +6,35 @@ volk (3.0.0-2+rpi1) trixie-staging; urgency=medium
   [changes introduced in 2.1.0-2+rpi1 by Peter Michael Green]
   * Add bulid-depends-indep on texlive-latex-extra.
 
- -- Raspbian forward porter <root@raspbian.org>  Wed, 20 Sep 2023 14:03:25 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Sun, 24 Dec 2023 13:11:22 +0000
+
+volk (3.1.0-3) unstable; urgency=medium
+
+  * add powerpc to cpu-features dependency
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Sat, 16 Dec 2023 09:31:28 -0500
+
+volk (3.1.0-2) unstable; urgency=medium
+
+  * Avoid ORC on x32, led to test failures
+  * include argilo-volk/all-i386-patches
+  * update available cpu-features architecture list
+  * Express version information in decimal
+  * add debian/upstream/metadata
+  * clean __pycahe__ (Closes: #1048046)
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Fri, 15 Dec 2023 17:57:14 -0500
+
+volk (3.1.0-1) experimental; urgency=medium
+
+  * New upstream release
+    Improved CMake build
+    Better tests
+    New kernel API (old API still available)
+    New and Updated kernels
+  * Upload to experimental for soversion bump
+
+ -- A. Maitland Bottoms <bottoms@debian.org>  Tue, 05 Dec 2023 18:12:20 -0500
 
 volk (3.0.0-2) unstable; urgency=medium
 
@@ -495,12 +523,12 @@ volk (1.0.1-1) unstable; urgency=low
     All build types now use -Wall.
 
   * QA and Testing
-   
+
    The documentation around the --update option to volk_profile now makes it
    clear that the option will only profile kernels without entries in
    volk_profile. The signature of run_volk_tests with expanded args changed
    signed types to unsigned types to reflect the actual input.
-   
+
    The remaining changes are all non-functional changes to address issues
    from Coverity.
 
