@@ -1894,7 +1894,7 @@ EXTRA_SEARCH_MAPPINGS  =
 # If the GENERATE_LATEX tag is set to YES, doxygen will generate LaTeX output.
 # The default value is: YES.
 
-GENERATE_LATEX         = NO
+GENERATE_LATEX         = @enable_pdf_docs@
 
 # The LATEX_OUTPUT tag is used to specify where the LaTeX docs will be put. If a
 # relative path is entered the value of OUTPUT_DIRECTORY will be put in front of
@@ -1914,7 +1914,7 @@ LATEX_OUTPUT           = latex
 # the output language.
 # This tag requires that the tag GENERATE_LATEX is set to YES.
 
-LATEX_CMD_NAME         = latex
+LATEX_CMD_NAME         = xelatex
 
 # The MAKEINDEX_CMD_NAME tag can be used to specify the command name to generate
 # index for LaTeX.
@@ -1951,7 +1951,7 @@ COMPACT_LATEX          = NO
 # The default value is: a4.
 # This tag requires that the tag GENERATE_LATEX is set to YES.
 
-PAPER_TYPE             = a4
+PAPER_TYPE             = letter
 
 # The EXTRA_PACKAGES tag can be used to specify one or more LaTeX package names
 # that should be included in the LaTeX output. The package can be specified just
@@ -1963,7 +1963,7 @@ PAPER_TYPE             = a4
 # If left blank no extra packages will be included.
 # This tag requires that the tag GENERATE_LATEX is set to YES.
 
-EXTRA_PACKAGES         =
+EXTRA_PACKAGES         = {amsmath} {pmboxdraw} {unicode-math}
 
 # The LATEX_HEADER tag can be used to specify a user-defined LaTeX header for
 # the generated LaTeX document. The header should contain everything until the
@@ -2429,7 +2429,7 @@ HIDE_UNDOC_RELATIONS   = YES
 # set to NO
 # The default value is: YES.
 
-HAVE_DOT               = NO
+HAVE_DOT               = YES
 
 # The DOT_NUM_THREADS specifies the number of dot invocations doxygen is allowed
 # to run in parallel. When set to 0 doxygen will base this on the number of
