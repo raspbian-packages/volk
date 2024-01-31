@@ -1,0 +1,16 @@
+Author: A. Maitland Bottoms <bottoms@debian.org>
+Forwarded: not-needed
+Description: doxygen without sse2neon
+ Skip processing external sse2neon files.
+ Improved privacy by not fetching sse2neon image URLs from github.
+
+--- a/docs/Doxyfile.in
++++ b/docs/Doxyfile.in
+@@ -995,6 +995,7 @@
+ 
+ EXCLUDE                = @CMAKE_BINARY_DIR@ \
+                          @CMAKE_SOURCE_DIR@/cpu_features \
++                         @CMAKE_SOURCE_DIR@/sse2neon \
+                          @CMAKE_SOURCE_DIR@/README.md \
+                          @CMAKE_SOURCE_DIR@/cmake \
+                          @CMAKE_SOURCE_DIR@/docs/AUTHORS_RESUBMITTING_UNDER_LGPL_LICENSE.md \
