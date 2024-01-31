@@ -1,0 +1,86 @@
+Author: A. Maitland Bottoms <bottoms@debian.org>
+Forwarded: not-needed
+Description: doxygen pdf
+ Work-In-Progress Debian inclusion of PDF format documentation.
+
+--- a/docs/CMakeLists.txt
++++ b/docs/CMakeLists.txt
+@@ -5,10 +5,18 @@
+ # SPDX-License-Identifier: LGPL-3.0-or-later
+ #
+ 
++option(ENABLE_DOXYGEN_PDF "Build Doxygen PDF" OFF)
+ find_package(Doxygen)
+ if(DOXYGEN_FOUND)
+-
+ message(STATUS "Doxygen found. Building docs ...")
++find_package(LATEX COMPONENTS PDFLATEX)
++
++if(ENABLE_DOXYGEN_PDF AND LATEX_FOUND)
++    set(enable_pdf_docs YES)
++    message(STATUS "latex found. Building PDF docs ...")
++else()
++    set(enable_pdf_docs NO)
++endif()
+ 
+ configure_file(
+     ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
+@@ -21,4 +29,11 @@
+     COMMENT "Generating documentation with Doxygen" VERBATIM
+ )
+ 
++add_custom_target(volk_pdf_doc
++    make
++    DEPENDS volk_doc
++    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/latex
++    COMMENT "Generating PDF documentation with Doxygen" VERBATIM
++)
++
+ endif(DOXYGEN_FOUND)
+--- a/docs/Doxyfile.in
++++ b/docs/Doxyfile.in
+@@ -1894,7 +1894,7 @@
+ # If the GENERATE_LATEX tag is set to YES, doxygen will generate LaTeX output.
+ # The default value is: YES.
+ 
+-GENERATE_LATEX         = NO
++GENERATE_LATEX         = @enable_pdf_docs@
+ 
+ # The LATEX_OUTPUT tag is used to specify where the LaTeX docs will be put. If a
+ # relative path is entered the value of OUTPUT_DIRECTORY will be put in front of
+@@ -1914,7 +1914,7 @@
+ # the output language.
+ # This tag requires that the tag GENERATE_LATEX is set to YES.
+ 
+-LATEX_CMD_NAME         = latex
++LATEX_CMD_NAME         = xelatex
+ 
+ # The MAKEINDEX_CMD_NAME tag can be used to specify the command name to generate
+ # index for LaTeX.
+@@ -1951,7 +1951,7 @@
+ # The default value is: a4.
+ # This tag requires that the tag GENERATE_LATEX is set to YES.
+ 
+-PAPER_TYPE             = a4
++PAPER_TYPE             = letter
+ 
+ # The EXTRA_PACKAGES tag can be used to specify one or more LaTeX package names
+ # that should be included in the LaTeX output. The package can be specified just
+@@ -1963,7 +1963,7 @@
+ # If left blank no extra packages will be included.
+ # This tag requires that the tag GENERATE_LATEX is set to YES.
+ 
+-EXTRA_PACKAGES         =
++EXTRA_PACKAGES         = {amsmath} {pmboxdraw} {unicode-math}
+ 
+ # The LATEX_HEADER tag can be used to specify a user-defined LaTeX header for
+ # the generated LaTeX document. The header should contain everything until the
+@@ -2429,7 +2429,7 @@
+ # set to NO
+ # The default value is: YES.
+ 
+-HAVE_DOT               = NO
++HAVE_DOT               = YES
+ 
+ # The DOT_NUM_THREADS specifies the number of dot invocations doxygen is allowed
+ # to run in parallel. When set to 0 doxygen will base this on the number of

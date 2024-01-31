@@ -1,0 +1,6 @@
+optional-static-apps
+omit-doxygen-build-paths
+update-doxygen
+doxygen-pdf
+doxygen-without-sse2neon
+patch-sse2neon-here
