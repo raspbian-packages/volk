@@ -1,7 +1,7 @@
 /* -*- c++ -*- */
 /*
  * Copyright 2014 - 2021 Free Software Foundation, Inc.
- * Copyright 2023 Magnus Lundmark <magnuslundmark@gmail.com>
+ * Copyright 2023, 2024 Magnus Lundmark <magnuslundmark@gmail.com>
  *
  * This file is part of VOLK
  *
@@ -126,7 +126,7 @@ std::vector<volk_test_case_t> init_test_list(volk_test_params_t test_params)
     QA(VOLK_INIT_TEST(volk_32f_s32f_convert_32i, test_params.make_tol(1)))
     QA(VOLK_INIT_TEST(volk_32f_convert_64f, test_params))
     QA(VOLK_INIT_TEST(volk_32f_s32f_convert_8i, test_params.make_tol(1)))
-    QA(VOLK_INIT_TEST(volk_32fc_convert_16ic, test_params))
+    QA(VOLK_INIT_TEST(volk_32fc_convert_16ic, test_params.make_tol(1)))
     QA(VOLK_INIT_TEST(volk_32fc_s32f_power_spectrum_32f, test_params.make_tol(2e-6)))
     QA(VOLK_INIT_TEST(volk_32fc_x2_square_dist_32f, test_params))
     QA(VOLK_INIT_TEST(volk_32fc_x2_s32f_square_dist_scalar_mult_32f, test_params))
@@ -141,6 +141,7 @@ std::vector<volk_test_case_t> init_test_list(volk_test_params_t test_params)
     QA(VOLK_INIT_TEST(volk_32f_64f_add_64f, test_params))
     QA(VOLK_INIT_TEST(volk_32f_s32f_normalize, test_params))
     QA(VOLK_INIT_TEST(volk_32f_s32f_power_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_reciprocal_32f, test_params.make_tol(6.15e-5)))
     QA(VOLK_INIT_TEST(volk_32f_sqrt_32f, test_params_inacc))
     QA(VOLK_INIT_TEST(volk_32f_s32f_stddev_32f, test_params_inacc))
     QA(VOLK_INIT_TEST(volk_32f_stddev_and_mean_32f_x2, test_params.make_absolute(1e-5)))

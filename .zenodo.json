@@ -40,6 +40,9 @@
             "name": "Bekhit, Amr"
         },
         {
+            "name": "Bernstein, Olaf"
+        },
+        {
             "affiliation": "Carnegie Mellon University, IIT Bombay",
             "name": "Bhowmick, Abhishek"
         },
@@ -54,6 +57,9 @@
         },
         {
             "name": "Briggs, Elliot"
+        },
+        {
+            "name": "Brighthope, Ashley"
         },
         {
             "name": "Cardoso, Jeison"
@@ -79,6 +85,12 @@
             "name": "Enochs, Brandon P."
         },
         {
+            "name": "Est\u00e9vez, Daniel"
+        },
+        {
+            "name": "Farina, Rick"
+        },
+        {
             "affiliation": "Centre Tecnol\u00f2gic de Telecomunicacions de Catalunya (CTTC)",
             "name": "Fernandez, Carles"
         },
@@ -98,6 +110,9 @@
             "name": "Goavec-Merou, Gwenhael"
         },
         {
+            "name": "Habets, Thomas"
+        },
+        {
             "name": "Hilburn, Ben"
         },
         {
@@ -108,6 +123,9 @@
         },
         {
             "name": "Kaesberger, Martin"
+        },
+        {
+            "name": "Lane, Sam"
         },
         {
             "name": "Lichtman, Marc"
@@ -161,10 +179,16 @@
             "name": "Piscopo, Mike"
         },
         {
+            "name": "Poyraz, Suleyman"
+        },
+        {
             "name": "Quiceno, Jam M. Hernandez"
         },
         {
             "name": "Rene, Mathieu"
+        },
+        {
+            "name": "Rikitake, Kenji"
         },
         {
             "name": "Ritterhoff, Florian"
@@ -187,6 +211,9 @@
         {
             "affiliation": "GNU Radio",
             "name": "Rondeau, Tom"
+        },
+        {
+            "name": "Sallay, John"
         },
         {
             "name": "Sekine, Takehiro"
@@ -258,6 +285,9 @@
         },
         {
             "name": "rear1019"
+        },
+        {
+            "name": "tinyboxvk"
         }
     ]
 }

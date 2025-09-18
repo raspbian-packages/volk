@@ -7,7 +7,7 @@
 
 # Welcome to VOLK!
 
-VOLK is a sub-project of GNU Radio. Please see http://libvolk.org for bug
+VOLK is a sub-project of GNU Radio. Please see https://www.libvolk.org/ for bug
 tracking, documentation, source code, and contact information about VOLK.
 See https://www.gnuradio.org/ for information about GNU Radio.
 
@@ -20,7 +20,7 @@ https://www.gnuradio.org/git/volk.git/.
 
 ## How to use VOLK:
 
-For detailed instructions see http://libvolk.org/doxygen/using_volk.html
+For detailed instructions see https://www.libvolk.org/doxygen/using_volk.html
 
 See these steps for a quick build guide.
 
@@ -48,8 +48,15 @@ $ volk_profile
 ```
 
 #### Missing submodule
-We use [cpu_features](https://github.com/google/cpu_features) as a git submodule to detect CPU features, e.g. AVX.
-There are two options to get the required code:
+We use [cpu_features](https://github.com/google/cpu_features) to detect CPU features, e.g. AVX.
+Some platforms require a very recent version that is not available through the appropriate package manager.
+In this case you must use `cpu_features` as a submodule.
+
+**NOTE**: Most package managers provide recent enough `cpu_features` versions by now. 
+Please default to the provided `cpu_features` version first, and only use the submodule in cases where this fails. 
+Please open an issue if this is the case.
+
+There are two options to get the required code in a submodule:
 ```bash
 git clone --recursive https://github.com/gnuradio/volk.git
 ```
@@ -67,12 +74,13 @@ To build for these boards you need specify the correct cmake toolchain file for 
 
 _Note: There is no need for adding extra options to the compiler for 64 bit._
 
+* Raspberry Pi 5 `arm_cortex_a76_hardfp_native.cmake`
 * Raspberry Pi 4 `arm_cortex_a72_hardfp_native.cmake`
 * Raspberry Pi 3 `arm_cortex_a53_hardfp_native.cmake`
 
 ```bash
 $ mkdir build && cd build
-$ cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchains/arm_cortex_a72_hardfp_native.cmake ..
+$ cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchains/arm_cortex_a76_hardfp_native.cmake ..
 # make -j4 might be faster
 $ make
 $ make test

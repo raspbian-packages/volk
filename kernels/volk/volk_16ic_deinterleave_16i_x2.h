@@ -274,7 +274,7 @@ static inline void volk_16ic_deinterleave_16i_x2_generic(int16_t* iBuffer,
 extern void volk_16ic_deinterleave_16i_x2_a_orc_impl(int16_t* iBuffer,
                                                      int16_t* qBuffer,
                                                      const lv_16sc_t* complexVector,
-                                                     unsigned int num_points);
+                                                     int num_points);
 static inline void volk_16ic_deinterleave_16i_x2_u_orc(int16_t* iBuffer,
                                                        int16_t* qBuffer,
                                                        const lv_16sc_t* complexVector,
@@ -374,5 +374,46 @@ static inline void volk_16ic_deinterleave_16i_x2_u_avx2(int16_t* iBuffer,
     }
 }
 #endif /* LV_HAVE_AVX2 */
+
+#ifdef LV_HAVE_RVV
+#include <riscv_vector.h>
+
+static inline void volk_16ic_deinterleave_16i_x2_rvv(int16_t* iBuffer,
+                                                     int16_t* qBuffer,
+                                                     const lv_16sc_t* complexVector,
+                                                     unsigned int num_points)
+{
+    size_t n = num_points;
+    for (size_t vl; n > 0; n -= vl, complexVector += vl, iBuffer += vl, qBuffer += vl) {
+        vl = __riscv_vsetvl_e16m4(n);
+        vuint32m8_t vc = __riscv_vle32_v_u32m8((const uint32_t*)complexVector, vl);
+        vuint16m4_t vr = __riscv_vnsrl(vc, 0, vl);
+        vuint16m4_t vi = __riscv_vnsrl(vc, 16, vl);
+        __riscv_vse16((uint16_t*)iBuffer, vr, vl);
+        __riscv_vse16((uint16_t*)qBuffer, vi, vl);
+    }
+}
+#endif /*LV_HAVE_RVV*/
+
+#ifdef LV_HAVE_RVVSEG
+#include <riscv_vector.h>
+
+static inline void volk_16ic_deinterleave_16i_x2_rvvseg(int16_t* iBuffer,
+                                                        int16_t* qBuffer,
+                                                        const lv_16sc_t* complexVector,
+                                                        unsigned int num_points)
+{
+    size_t n = num_points;
+    for (size_t vl; n > 0; n -= vl, complexVector += vl, iBuffer += vl, qBuffer += vl) {
+        vl = __riscv_vsetvl_e16m4(n);
+        vuint16m4x2_t vc =
+            __riscv_vlseg2e16_v_u16m4x2((const uint16_t*)complexVector, vl);
+        vuint16m4_t vr = __riscv_vget_u16m4(vc, 0);
+        vuint16m4_t vi = __riscv_vget_u16m4(vc, 1);
+        __riscv_vse16((uint16_t*)iBuffer, vr, vl);
+        __riscv_vse16((uint16_t*)qBuffer, vi, vl);
+    }
+}
+#endif /*LV_HAVE_RVVSEG*/
 
 #endif /* INCLUDED_volk_16ic_deinterleave_16i_x2_u_H */

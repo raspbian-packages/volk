@@ -1,16 +1,9 @@
 #!/usr/bin/make -f
-DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
-export DEB_HOST_MULTIARCH
-#DEB_BUILD_MAINT_OPTIONS += hardening=+all
-#export DEB_BUILD_MAINT_OPTIONS
+#export DEB_BUILD_MAINT_OPTIONS += hardening=+all
 #export DH_VERBOSE=1
 
 %:
 	dh $@ --with python3
-
-override_dh_auto_configure:
-	dh_auto_configure -- -DLIB_SUFFIX="/$(DEB_HOST_MULTIARCH)"
-#	-DENABLE_DOXYGEN_PDF=ON
 
 override_dh_auto_build-indep:
 	cmake --build obj-* --target all

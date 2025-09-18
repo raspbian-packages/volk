@@ -421,151 +421,72 @@ static inline void volk_32fc_x2_conjugate_dot_prod_32fc_a_sse3(lv_32fc_t* result
 
 #endif /*LV_HAVE_SSE3*/
 
+#ifdef LV_HAVE_RVV
+#include <riscv_vector.h>
+#include <volk/volk_rvv_intrinsics.h>
 
-#if LV_HAVE_SSE && LV_HAVE_64
-
-static inline void volk_32fc_x2_conjugate_dot_prod_32fc_a_sse(lv_32fc_t* result,
-                                                              const lv_32fc_t* input,
-                                                              const lv_32fc_t* taps,
-                                                              unsigned int num_points)
+static inline void volk_32fc_x2_conjugate_dot_prod_32fc_rvv(lv_32fc_t* result,
+                                                            const lv_32fc_t* input,
+                                                            const lv_32fc_t* taps,
+                                                            unsigned int num_points)
 {
-
-    const unsigned int num_bytes = num_points * 8;
-
-    __VOLK_ATTR_ALIGNED(16)
-    static const uint32_t conjugator[4] = {
-        0x00000000, 0x80000000, 0x00000000, 0x80000000
-    };
-
-    __VOLK_ASM __VOLK_VOLATILE(
-        "#  ccomplex_conjugate_dotprod_generic (float* result, const float *input,\n\t"
-        "#                         const float *taps, unsigned num_bytes)\n\t"
-        "#    float sum0 = 0;\n\t"
-        "#    float sum1 = 0;\n\t"
-        "#    float sum2 = 0;\n\t"
-        "#    float sum3 = 0;\n\t"
-        "#    do {\n\t"
-        "#      sum0 += input[0] * taps[0] - input[1] * taps[1];\n\t"
-        "#      sum1 += input[0] * taps[1] + input[1] * taps[0];\n\t"
-        "#      sum2 += input[2] * taps[2] - input[3] * taps[3];\n\t"
-        "#      sum3 += input[2] * taps[3] + input[3] * taps[2];\n\t"
-        "#      input += 4;\n\t"
-        "#      taps += 4;  \n\t"
-        "#    } while (--n_2_ccomplex_blocks != 0);\n\t"
-        "#    result[0] = sum0 + sum2;\n\t"
-        "#    result[1] = sum1 + sum3;\n\t"
-        "# TODO: prefetch and better scheduling\n\t"
-        "  xor    %%r9,  %%r9\n\t"
-        "  xor    %%r10, %%r10\n\t"
-        "  movq   %[conjugator], %%r9\n\t"
-        "  movq   %%rcx, %%rax\n\t"
-        "  movaps 0(%%r9), %%xmm8\n\t"
-        "  movq   %%rcx, %%r8\n\t"
-        "  movq   %[rsi],  %%r9\n\t"
-        "  movq   %[rdx], %%r10\n\t"
-        "	xorps	%%xmm6, %%xmm6		# zero accumulators\n\t"
-        "	xorps	%%xmm7, %%xmm7		# zero accumulators\n\t"
-        "	shr	$5, %%rax		# rax = n_2_ccomplex_blocks / 2\n\t"
-        "  shr     $4, %%r8\n\t"
-        "  xorps  %%xmm8, %%xmm2\n\t"
-        "	jmp	.%=L1_test\n\t"
-        "	# 4 taps / loop\n\t"
-        "	# something like ?? cycles / loop\n\t"
-        ".%=Loop1:	\n\t"
-        "# complex prod: C += A * B,  w/ temp Z & Y (or B), xmmPN=$0x8000000080000000\n\t"
-        "#	movaps	(%%r9), %%xmmA\n\t"
-        "#	movaps	(%%r10), %%xmmB\n\t"
-        "#	movaps	%%xmmA, %%xmmZ\n\t"
-        "#	shufps	$0xb1, %%xmmZ, %%xmmZ	# swap internals\n\t"
-        "#	mulps	%%xmmB, %%xmmA\n\t"
-        "#	mulps	%%xmmZ, %%xmmB\n\t"
-        "#	# SSE replacement for: pfpnacc %%xmmB, %%xmmA\n\t"
-        "#	xorps	%%xmmPN, %%xmmA\n\t"
-        "#	movaps	%%xmmA, %%xmmZ\n\t"
-        "#	unpcklps %%xmmB, %%xmmA\n\t"
-        "#	unpckhps %%xmmB, %%xmmZ\n\t"
-        "#	movaps	%%xmmZ, %%xmmY\n\t"
-        "#	shufps	$0x44, %%xmmA, %%xmmZ	# b01000100\n\t"
-        "#	shufps	$0xee, %%xmmY, %%xmmA	# b11101110\n\t"
-        "#	addps	%%xmmZ, %%xmmA\n\t"
-        "#	addps	%%xmmA, %%xmmC\n\t"
-        "# A=xmm0, B=xmm2, Z=xmm4\n\t"
-        "# A'=xmm1, B'=xmm3, Z'=xmm5\n\t"
-        "	movaps	0(%%r9), %%xmm0\n\t"
-        "	movaps	16(%%r9), %%xmm1\n\t"
-        "	movaps	%%xmm0, %%xmm4\n\t"
-        "	movaps	0(%%r10), %%xmm2\n\t"
-        "  xorps   %%xmm8, %%xmm2\n\t"
-        "	mulps	%%xmm2, %%xmm0\n\t"
-        "	shufps	$0xb1, %%xmm4, %%xmm4	# swap internals\n\t"
-        "	movaps	16(%%r10), %%xmm3\n\t"
-        "	movaps	%%xmm1, %%xmm5\n\t"
-        "  xorps   %%xmm8, %%xmm3\n\t"
-        "	addps	%%xmm0, %%xmm6\n\t"
-        "	mulps	%%xmm3, %%xmm1\n\t"
-        "	shufps	$0xb1, %%xmm5, %%xmm5	# swap internals\n\t"
-        "	addps	%%xmm1, %%xmm6\n\t"
-        "	mulps	%%xmm4, %%xmm2\n\t"
-        "	addps	%%xmm2, %%xmm7\n\t"
-        "	mulps	%%xmm5, %%xmm3\n\t"
-        "	add	$32, %%r9\n\t"
-        "	addps	%%xmm3, %%xmm7\n\t"
-        "	add	$32, %%r10\n\t"
-        ".%=L1_test:\n\t"
-        "	dec	%%rax\n\t"
-        "	jge	.%=Loop1\n\t"
-        "	# We've handled the bulk of multiplies up to here.\n\t"
-        "	# Let's sse if original n_2_ccomplex_blocks was odd.\n\t"
-        "	# If so, we've got 2 more taps to do.\n\t"
-        "	and	$1, %%r8\n\t"
-        "	je	.%=Leven\n\t"
-        "	# The count was odd, do 2 more taps.\n\t"
-        "	# Note that we've already got mm0/mm2 preloaded\n\t"
-        "	# from the main loop.\n\t"
-        "	movaps	0(%%r9), %%xmm0\n\t"
-        "	movaps	%%xmm0, %%xmm4\n\t"
-        "	movaps	0(%%r10), %%xmm2\n\t"
-        "  xorps   %%xmm8, %%xmm2\n\t"
-        "	mulps	%%xmm2, %%xmm0\n\t"
-        "	shufps	$0xb1, %%xmm4, %%xmm4	# swap internals\n\t"
-        "	addps	%%xmm0, %%xmm6\n\t"
-        "	mulps	%%xmm4, %%xmm2\n\t"
-        "	addps	%%xmm2, %%xmm7\n\t"
-        ".%=Leven:\n\t"
-        "	# neg inversor\n\t"
-        "	xorps	%%xmm1, %%xmm1\n\t"
-        "	mov	$0x80000000, %%r9\n\t"
-        "	movd	%%r9, %%xmm1\n\t"
-        "	shufps	$0x11, %%xmm1, %%xmm1	# b00010001 # 0 -0 0 -0\n\t"
-        "	# pfpnacc\n\t"
-        "	xorps	%%xmm1, %%xmm6\n\t"
-        "	movaps	%%xmm6, %%xmm2\n\t"
-        "	unpcklps %%xmm7, %%xmm6\n\t"
-        "	unpckhps %%xmm7, %%xmm2\n\t"
-        "	movaps	%%xmm2, %%xmm3\n\t"
-        "	shufps	$0x44, %%xmm6, %%xmm2	# b01000100\n\t"
-        "	shufps	$0xee, %%xmm3, %%xmm6	# b11101110\n\t"
-        "	addps	%%xmm2, %%xmm6\n\t"
-        "					# xmm6 = r1 i2 r3 i4\n\t"
-        "	movhlps	%%xmm6, %%xmm4		# xmm4 = r3 i4 ?? ??\n\t"
-        "	addps	%%xmm4, %%xmm6		# xmm6 = r1+r3 i2+i4 ?? ??\n\t"
-        "	movlps	%%xmm6, (%[rdi])		# store low 2x32 bits (complex) "
-        "to memory\n\t"
-        :
-        : [rsi] "r"(input),
-          [rdx] "r"(taps),
-          "c"(num_bytes),
-          [rdi] "r"(result),
-          [conjugator] "r"(conjugator)
-        : "rax", "r8", "r9", "r10");
-
-    int getem = num_bytes % 16;
-
-    for (; getem > 0; getem -= 8) {
-        *result += (input[(num_bytes >> 3) - 1] * lv_conj(taps[(num_bytes >> 3) - 1]));
+    vfloat32m2_t vsumr = __riscv_vfmv_v_f_f32m2(0, __riscv_vsetvlmax_e32m2());
+    vfloat32m2_t vsumi = vsumr;
+    size_t n = num_points;
+    for (size_t vl; n > 0; n -= vl, input += vl, taps += vl) {
+        vl = __riscv_vsetvl_e32m2(n);
+        vuint64m4_t va = __riscv_vle64_v_u64m4((const uint64_t*)input, vl);
+        vuint64m4_t vb = __riscv_vle64_v_u64m4((const uint64_t*)taps, vl);
+        vfloat32m2_t var = __riscv_vreinterpret_f32m2(__riscv_vnsrl(va, 0, vl));
+        vfloat32m2_t vbr = __riscv_vreinterpret_f32m2(__riscv_vnsrl(vb, 0, vl));
+        vfloat32m2_t vai = __riscv_vreinterpret_f32m2(__riscv_vnsrl(va, 32, vl));
+        vfloat32m2_t vbi = __riscv_vreinterpret_f32m2(__riscv_vnsrl(vb, 32, vl));
+        vbi = __riscv_vfneg(vbi, vl);
+        vfloat32m2_t vr = __riscv_vfnmsac(__riscv_vfmul(var, vbr, vl), vai, vbi, vl);
+        vfloat32m2_t vi = __riscv_vfmacc(__riscv_vfmul(var, vbi, vl), vai, vbr, vl);
+        vsumr = __riscv_vfadd_tu(vsumr, vsumr, vr, vl);
+        vsumi = __riscv_vfadd_tu(vsumi, vsumi, vi, vl);
     }
+    size_t vl = __riscv_vsetvlmax_e32m1();
+    vfloat32m1_t vr = RISCV_SHRINK2(vfadd, f, 32, vsumr);
+    vfloat32m1_t vi = RISCV_SHRINK2(vfadd, f, 32, vsumi);
+    vfloat32m1_t z = __riscv_vfmv_s_f_f32m1(0, vl);
+    *result = lv_cmake(__riscv_vfmv_f(__riscv_vfredusum(vr, z, vl)),
+                       __riscv_vfmv_f(__riscv_vfredusum(vi, z, vl)));
 }
-#endif
+#endif /*LV_HAVE_RVV*/
 
+#ifdef LV_HAVE_RVVSEG
+#include <riscv_vector.h>
+#include <volk/volk_rvv_intrinsics.h>
+
+static inline void volk_32fc_x2_conjugate_dot_prod_32fc_rvvseg(lv_32fc_t* result,
+                                                               const lv_32fc_t* input,
+                                                               const lv_32fc_t* taps,
+                                                               unsigned int num_points)
+{
+    vfloat32m2_t vsumr = __riscv_vfmv_v_f_f32m2(0, __riscv_vsetvlmax_e32m2());
+    vfloat32m2_t vsumi = vsumr;
+    size_t n = num_points;
+    for (size_t vl; n > 0; n -= vl, input += vl, taps += vl) {
+        vl = __riscv_vsetvl_e32m2(n);
+        vfloat32m2x2_t va = __riscv_vlseg2e32_v_f32m2x2((const float*)input, vl);
+        vfloat32m2x2_t vb = __riscv_vlseg2e32_v_f32m2x2((const float*)taps, vl);
+        vfloat32m2_t var = __riscv_vget_f32m2(va, 0), vai = __riscv_vget_f32m2(va, 1);
+        vfloat32m2_t vbr = __riscv_vget_f32m2(vb, 0), vbi = __riscv_vget_f32m2(vb, 1);
+        vbi = __riscv_vfneg(vbi, vl);
+        vfloat32m2_t vr = __riscv_vfnmsac(__riscv_vfmul(var, vbr, vl), vai, vbi, vl);
+        vfloat32m2_t vi = __riscv_vfmacc(__riscv_vfmul(var, vbi, vl), vai, vbr, vl);
+        vsumr = __riscv_vfadd_tu(vsumr, vsumr, vr, vl);
+        vsumi = __riscv_vfadd_tu(vsumi, vsumi, vi, vl);
+    }
+    size_t vl = __riscv_vsetvlmax_e32m1();
+    vfloat32m1_t vr = RISCV_SHRINK2(vfadd, f, 32, vsumr);
+    vfloat32m1_t vi = RISCV_SHRINK2(vfadd, f, 32, vsumi);
+    vfloat32m1_t z = __riscv_vfmv_s_f_f32m1(0, vl);
+    *result = lv_cmake(__riscv_vfmv_f(__riscv_vfredusum(vr, z, vl)),
+                       __riscv_vfmv_f(__riscv_vfredusum(vi, z, vl)));
+}
+#endif /*LV_HAVE_RVVSEG*/
 
 #endif /*INCLUDED_volk_32fc_x2_conjugate_dot_prod_32fc_a_H*/

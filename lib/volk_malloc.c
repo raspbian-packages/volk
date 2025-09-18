@@ -19,7 +19,7 @@
  *
  * MSVC is broken
  * see:
- * https://docs.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=vs-2019
+ * https://learn.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-170
  * This section:
  * C11 The Universal CRT implemented the parts of the
  * C11 Standard Library that are required by C++17,
@@ -38,7 +38,6 @@
 void* volk_malloc(size_t size, size_t alignment)
 {
     if ((size == 0) || (alignment == 0)) {
-        fprintf(stderr, "VOLK: Error allocating memory: either size or alignment is 0\n");
         return NULL;
     }
     // Tweak size to satisfy ASAN (the GCC address sanitizer).
@@ -59,21 +58,12 @@ void* volk_malloc(size_t size, size_t alignment)
     int err = posix_memalign(&ptr, alignment, size);
     if (err != 0) {
         ptr = NULL;
-        fprintf(stderr,
-                "VOLK: Error allocating memory "
-                "(posix_memalign: error %d: %s)\n",
-                err,
-                strerror(err));
     }
 #elif defined(_MSC_VER) || defined(__MINGW32__)
     void* ptr = _aligned_malloc(size, alignment);
 #else
     void* ptr = aligned_alloc(alignment, size);
 #endif
-    if (ptr == NULL) {
-        fprintf(stderr,
-                "VOLK: Error allocating memory (aligned_alloc/_aligned_malloc)\n");
-    }
     return ptr;
 }
 

@@ -9,7 +9,7 @@ Comment:
  Upstream Maintainers:
   Johannes Demel <demel@uni-bremen.de>
   Michael Dickens <michael.dickens@ettus.com>
-Copyright: 2014-2023 Free Software Foundation, Inc.
+Copyright: 2014-2025 Free Software Foundation, Inc.
 License: LGPL-3+
 
 Files: *
@@ -98,7 +98,7 @@ License: BSD-2-clause
  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Files: debian/*
-Copyright: 2015-2020 Free Software Foundation, Inc
+Copyright: 2015-2025 Free Software Foundation, Inc
 License: LGPL-3+
 Comment: assigned by A. Maitland Bottoms <bottoms@debian.org>
 

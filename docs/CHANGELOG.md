@@ -1,8 +1,8 @@
 # Changelog
 All notable changes to VOLK will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html), starting with version 2.0.0.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html), starting with version 2.0.0.
 
 
 ## [2.0.0] - 2019-08-06
@@ -786,3 +786,157 @@ This release introduces new kernels, fixes a lot of subtle bugs, and introduces 
       - Add 32f_s32f_multiply_32f RISC-V manually optimized assembly
       - Add .size to volk_32f_s32f_multiply_32f_sifive_u74
       - Add volk_32fc_x2_dot_prod_32fc_sifive_u74
+
+## [3.1.1] - 2024-01-29
+
+Hi everyone!
+
+This is the VOLK v3.1.1 release! We want to thank all contributors. This release wouldn't have been possible without them.
+
+This is a maintenance release to fix subtle bugs in many areas and to improve our tests where possible. All in all, our CI is more stable now and catches more errors.
+
+### Contributors
+
+Clayton Smith <argilo@gmail.com>
+Johannes Demel <demel@uni-bremen.de>, <jdemel@gnuradio.org>
+Kenji Rikitake <kenji.rikitake@acm.org>
+Philip Balister <philip@opensdr.com>
+
+### Changes
+
+- CI fixes
+  - Allow for rounding error in float-to-int conversions
+  - Allow for rounding error in `volk_32fc_s32f_magnitude_16i`
+  - Allow for rounding error in float-to-int interleave
+  - Add missing `volk_16_byteswap_u_orc` to puppet
+  - Fix 64-bit integer testing
+  - Build and test neonv7 protokernels on armv7
+
+- kernels
+  - Remove broken sse32 kernels
+  - Fix flaky `fm_detect` test
+  - Fix flaky `mod_range` test
+  - Remove unnecessary volatiles from `volk_32fc_s32f_magnitude_16i`
+  - Remove SSE protokernels written in assembly
+  - Remove inline assembler from `volk_32fc_convert_16ic_neon`
+  - Use bit shifts in generic and `byte_shuffle` reverse
+  - Remove disabled SSE4.1 dot product
+  - Fix `conv_k7_r2` kernel and puppet
+  - Remove unused argument from renormalize
+  - Align types in ORC function signatures
+  - Uncomment AVX2 implementation
+  - Renormalize in every iteration on AVX2
+  - Remove extraneous permutations
+  - Compute the minimum over both register lanes
+  - `volk_32fc_s32f_atan2_32f`: Add NaN tests for avx2 and avx2fma code
+
+- fixes
+  - Express version information in decimal
+  - Remove `__VOLK_VOLATILE`
+  - Remove references to simdmath library
+  - cmake: Switch to GNUInstallDirs
+  - fprintf: Remove fprintf statements from `volk_malloc`
+  - release: Prepare release with updated files
+  - Get the sse2neon.h file to a git submodule to avoid random copies.
+
+
+## [3.1.2] - 2024-02-25
+
+Hi everyone!
+
+This is the VOLK v3.1.2 release! We want to thank all contributors.
+This release wouldn't have been possible without them.
+
+The last maintenance release revealed issues in areas that are difficult to test. 
+While the changes to the library should be minimal, usability should be improved. 
+Most notably, we build and deploy [the VOLK documentation](https://www.libvolk.org/docs) 
+automatically now.
+
+### Contributors
+
+- Andrej Rode <mail@andrejro.de>
+- Clayton Smith <argilo@gmail.com>
+- Johannes Demel <demel@uni-bremen.de>, <jdemel@gnuradio.org>
+- Marcus Müller <mmueller@gnuradio.org>
+- Rick Farina (Zero_Chaos) <zerochaos@gentoo.org>
+
+### Changes
+
+- Documentation improvements, and automatically generate and publish
+    - docs: Add VOLK doc build to CI
+    - docs: Add upload to GitHub actions
+    - cpu_features: Update hints in README
+- Remove sse2neon with a native NEON implementation
+    - Replace sse2neon with native NEON
+    - Remove loop unrolling
+    - Simplify Spiral-generated code
+- Improve CI pipeline with new runner
+    - flyci: Test CI service with M2 instance
+    - actions: Update GH Actions checkout
+- Auto-format CMake files
+    - cmake: Add .cmake-format.py
+    - cmake: Apply .cmake-format.py
+- Release script fixes
+    - scripts/release: fix multi-concatenation of submodule tars
+    - shellcheck fixes
+    - bash negative exit codes are not portable, let's be positive
+
+
+
+
+## [3.2.0] - 2025-02-03
+
+Hi everyone!
+
+This is the VOLK v3.2.0 release! We want to thank all contributors.
+This release wouldn't have been possible without them.
+
+Thanks to Olaf Bernstein, VOLK received well optimized RiscV implementations for almost every kernel.
+Together with the appropriate CI, this contribution makes VOLK way more powerful on a whole new architecture.
+
+We started to use gtest as an additional test framework. The current "one kinda test fits all" approach is often insufficient to test kernels where they really should not fail.
+Now, this approach should allow us to implement more powerful tests more easily.
+
+Besides the x86 platform, we see more and more ARM activity. The corresponding kernels can now be tested natively on Linux and MacOS.
+This approach is way faster than before with QEMU. A single job runs in ~1min instead of ~12min now.
+
+### Contributors
+
+- Doron Behar <doron.behar@gmail.com>
+- Johannes Demel <jdemel@gnuradio.org>
+- John Sallay <jasallay@gmail.com>
+- Magnus Lundmark <magnuslundmark@gmail.com>
+- Olaf Bernstein <camel-cdr@protonmail.com>
+- Ron Economos <w6rz@comcast.net>
+- Sam Lane <sl01172@surrey.ac.uk>
+- Suleyman Poyraz <zaryob.dev@gmail.com>
+- tinyboxvk <13696594+tinyboxvk@users.noreply.github.com>
+
+### Changes
+
+- New and improved kernels
+    - add RISC-V Vector extension (RVV) kernels
+    - New AVX512F implementation
+- Improved and modernized CI
+    - ci: Add first native Linux ARM runners
+    - macos: Fix CI dependency error
+    - appveyor: Update to VS 2022/Python 3.12
+    - Update android_build.yml
+- Improved builds
+    - cmake: Fix 64bit host CPU detection
+    - cmake: Suppress invalid escape sequence warnings with Python 3.12
+    - cmake/pkgconfig: use CMAKE_INSTALL_FULL_* variables
+    - cmake: Fix VOLK as a submodule build issue
+    - Adds toolchain file for Raspberry Pi 5
+- New and improved tests
+    - gtest: Start work on new test infrastructure
+    - tests: Add a log info print test
+    - gtest: Make gtest an install dependency
+    - gtest: Enable GTests in CI workflows
+    - tests: Beautify test output
+- Documentation
+    - cpu_features: Update hints in README
+- Code quality
+    - Add const to several args
+- Usability features
+    - feature: add env variable kernel override

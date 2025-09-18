@@ -76,11 +76,10 @@ static inline void volk_32fc_s32f_magnitude_16i_generic(int16_t* magnitudeVector
     int16_t* magnitudeVectorPtr = magnitudeVector;
     unsigned int number = 0;
     for (number = 0; number < num_points; number++) {
-        __VOLK_VOLATILE float real = *complexVectorPtr++;
-        __VOLK_VOLATILE float imag = *complexVectorPtr++;
-        real *= real;
-        imag *= imag;
-        *magnitudeVectorPtr++ = (int16_t)rintf(scalar * sqrtf(real + imag));
+        float real = *complexVectorPtr++;
+        float imag = *complexVectorPtr++;
+        *magnitudeVectorPtr++ =
+            (int16_t)rintf(scalar * sqrtf((real * real) + (imag * imag)));
     }
 }
 #endif /* LV_HAVE_GENERIC */
@@ -219,10 +218,8 @@ static inline void volk_32fc_s32f_magnitude_16i_a_sse(int16_t* magnitudeVector,
         // Arrange in q1q2q3q4 format
         qValue = _mm_shuffle_ps(cplxValue1, cplxValue2, _MM_SHUFFLE(3, 1, 3, 1));
 
-        __VOLK_VOLATILE __m128 iValue2 =
-            _mm_mul_ps(iValue, iValue); // Square the I values
-        __VOLK_VOLATILE __m128 qValue2 =
-            _mm_mul_ps(qValue, qValue); // Square the Q Values
+        __m128 iValue2 = _mm_mul_ps(iValue, iValue); // Square the I values
+        __m128 qValue2 = _mm_mul_ps(qValue, qValue); // Square the Q Values
 
         result = _mm_add_ps(iValue2, qValue2); // Add the I2 and Q2 values
 
@@ -304,5 +301,47 @@ static inline void volk_32fc_s32f_magnitude_16i_u_avx2(int16_t* magnitudeVector,
         magnitudeVector + number, complexVector + number, scalar, num_points - number);
 }
 #endif /* LV_HAVE_AVX2 */
+
+#ifdef LV_HAVE_RVV
+#include <riscv_vector.h>
+
+static inline void volk_32fc_s32f_magnitude_16i_rvv(int16_t* magnitudeVector,
+                                                    const lv_32fc_t* complexVector,
+                                                    const float scalar,
+                                                    unsigned int num_points)
+{
+    size_t n = num_points;
+    for (size_t vl; n > 0; n -= vl, complexVector += vl, magnitudeVector += vl) {
+        vl = __riscv_vsetvl_e32m4(n);
+        vuint64m8_t vc = __riscv_vle64_v_u64m8((const uint64_t*)complexVector, vl);
+        vfloat32m4_t vr = __riscv_vreinterpret_f32m4(__riscv_vnsrl(vc, 0, vl));
+        vfloat32m4_t vi = __riscv_vreinterpret_f32m4(__riscv_vnsrl(vc, 32, vl));
+        vfloat32m4_t v = __riscv_vfmacc(__riscv_vfmul(vi, vi, vl), vr, vr, vl);
+        v = __riscv_vfmul(__riscv_vfsqrt(v, vl), scalar, vl);
+        __riscv_vse16(magnitudeVector, __riscv_vfncvt_x(v, vl), vl);
+    }
+}
+#endif /*LV_HAVE_RVV*/
+
+#ifdef LV_HAVE_RVVSEG
+#include <riscv_vector.h>
+
+static inline void volk_32fc_s32f_magnitude_16i_rvvseg(int16_t* magnitudeVector,
+                                                       const lv_32fc_t* complexVector,
+                                                       const float scalar,
+                                                       unsigned int num_points)
+{
+    size_t n = num_points;
+    for (size_t vl; n > 0; n -= vl, complexVector += vl, magnitudeVector += vl) {
+        vl = __riscv_vsetvl_e32m4(n);
+        vfloat32m4x2_t vc = __riscv_vlseg2e32_v_f32m4x2((const float*)complexVector, vl);
+        vfloat32m4_t vr = __riscv_vget_f32m4(vc, 0);
+        vfloat32m4_t vi = __riscv_vget_f32m4(vc, 1);
+        vfloat32m4_t v = __riscv_vfmacc(__riscv_vfmul(vi, vi, vl), vr, vr, vl);
+        v = __riscv_vfmul(__riscv_vfsqrt(v, vl), scalar, vl);
+        __riscv_vse16(magnitudeVector, __riscv_vfncvt_x(v, vl), vl);
+    }
+}
+#endif /*LV_HAVE_RVVSEG*/
 
 #endif /* INCLUDED_volk_32fc_s32f_magnitude_16i_u_H */
