@@ -1,10 +1,12 @@
 Description: Disable neon.
 Author: Peter Michael Green <plugwash@raspbian.org>
 
---- volk-2.1.0.orig/lib/CMakeLists.txt
-+++ volk-2.1.0/lib/CMakeLists.txt
-@@ -273,7 +273,8 @@ else(neon_compile_result)
-     OVERRULE_ARCH(neonv8 "Compiler doesn't support NEON")
+diff --git a/lib/CMakeLists.txt b/lib/CMakeLists.txt
+index 588db44..c42086b 100644
+--- a/lib/CMakeLists.txt
++++ b/lib/CMakeLists.txt
+@@ -257,7 +257,8 @@ else(neon_compile_result)
+     overrule_arch(neonv8 "Compiler doesn't support NEON")
  endif(neon_compile_result)
  
 -########################################################################
@@ -13,12 +15,12 @@ Author: Peter Michael Green <plugwash@raspbian.org>
  # implement overruling in the ORC case,
  # since ORC always passes flag detection
  ########################################################################
-@@ -441,7 +442,7 @@ set(FULL_C_FLAGS "${CMAKE_C_FLAGS}" "${C
+@@ -456,7 +457,7 @@ set(FULL_C_FLAGS "${CMAKE_C_FLAGS}" "${CMAKE_CXX_COMPILER_ARG1}")
  # set up the assembler flags and include the source files
  foreach(ARCH ${ASM_ARCHS_AVAILABLE})
-   string(REGEX MATCH "${ARCH}" ASM_ARCH "${available_archs}")
--if( ASM_ARCH STREQUAL "neonv7" )
-+if( ASM_ARCH STREQUAL "neonv7xxxxxxxxxx" )
-   message(STATUS "---- Adding ASM files") # we always use ATT syntax
-   message(STATUS "-- Detected neon architecture; enabling ASM")
-   # architecture specific assembler flags are now set in the cmake toolchain file
+     string(REGEX MATCH "${ARCH}" ASM_ARCH "${available_archs}")
+-    if(ASM_ARCH STREQUAL "neonv7")
++    if(ASM_ARCH STREQUAL "neonv7xxxxxxxxxxx")
+         message(STATUS "---- Adding ASM files") # we always use ATT syntax
+         message(STATUS "-- Detected neon architecture; enabling ASM")
+         # architecture specific assembler flags are now set in the cmake toolchain file
