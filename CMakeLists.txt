@@ -134,6 +134,11 @@ else()
     option(VOLK_CPU_FEATURES "Volk uses cpu_features" OFF)
 endif()
 
+# no cpu_features on GNU/Hurd
+if(CMAKE_SYSTEM_NAME MATCHES "GNU")
+  set(VOLK_CPU_FEATURES OFF)
+endif()
+
 if(VOLK_CPU_FEATURES)
     find_package(CpuFeatures QUIET)
     if(NOT CpuFeatures_FOUND)
