@@ -37,7 +37,7 @@ target_include_directories(
     PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-if(ENABLE_STATIC_LIBS)
+if(ENABLE_STATIC_LIBS AND ENABLE_STATIC_APPS)
     target_link_libraries(volk_profile PRIVATE volk_static)
     set_target_properties(volk_profile PROPERTIES LINK_FLAGS "-static")
 else()
@@ -54,7 +54,7 @@ add_executable(volk-config-info volk-config-info.cc
                                 ${CMAKE_CURRENT_SOURCE_DIR}/volk_option_helpers.cc)
 target_compile_features(volk-config-info PUBLIC cxx_std_17)
 
-if(ENABLE_STATIC_LIBS)
+if(ENABLE_STATIC_LIBS AND ENABLE_STATIC_APPS)
     target_link_libraries(volk-config-info volk_static)
     set_target_properties(volk-config-info PROPERTIES LINK_FLAGS "-static")
 else()
