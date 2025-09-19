@@ -1,0 +1,17 @@
+Description: no hurd cpu features
+Author: A. Maitland Bottoms <bottoms@debian.org>
+
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -134,6 +134,11 @@
+     option(VOLK_CPU_FEATURES "Volk uses cpu_features" OFF)
+ endif()
+ 
++# no cpu_features on GNU/Hurd
++if(CMAKE_SYSTEM_NAME MATCHES "GNU")
++  set(VOLK_CPU_FEATURES OFF)
++endif()
++
+ if(VOLK_CPU_FEATURES)
+     find_package(CpuFeatures QUIET)
+     if(NOT CpuFeatures_FOUND)

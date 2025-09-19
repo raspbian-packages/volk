@@ -1,0 +1,16 @@
+0001-Fix-github-actions-for-publishing-docs.patch
+0002-readme-Add-paragraph-to-outline-dependency-policy.patch
+0003-ci-Remove-obsolete-CI-add-new-CI.patch
+0004-filesystem-Fully-rely-on-std-filesystem.patch
+0005-ci-Add-Werror-flag-to-CI-for-C-compilation.patch
+# 0006-cx-limited-range-Scope-compile-feature.patch
+0007-cpu_features-Start-using-packaged-version-in-CI.patch
+0008-ppc64le-Suppress-unused-variable-warning.patch
+0009-cmake-Fix-auto-format.patch
+0010-neon-Fix-compile-check.patch
+0011-16u_bytswap-Update-code-style.patch
+0012-Add-tool-to-compare-profiles.patch
+optional-static-apps
+omit-doxygen-build-paths
+# doxygen-pdf
+no-hurd-cpu-features

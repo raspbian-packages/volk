@@ -1,0 +1,25 @@
+From 84d0df88648c69983f6307b6fb2262e077d63d29 Mon Sep 17 00:00:00 2001
+From: Johannes Demel <jdemel@gnuradio.org>
+Date: Sun, 6 Jul 2025 20:15:48 +0200
+Subject: [PATCH 08/12] ppc64le: Suppress unused variable warning
+
+The cpu_features build does not use some variables for the ppc64le
+build. This errors with the Werror flag. This commit suppresses this
+error.
+
+Signed-off-by: Johannes Demel <jdemel@gnuradio.org>
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -159,7 +159,7 @@
+         set(CMAKE_C_FLAGS_SAVED "${CMAKE_C_FLAGS}")
+         check_c_compiler_flag(-Wno-unused-function HAVE_WNO_UNUSED_FUNCTION_CMD_LINE_ARG)
+         if(HAVE_WNO_UNUSED_FUNCTION_CMD_LINE_ARG)
+-            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-function")
++            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-function -Wno-unused-variable")
+         endif(HAVE_WNO_UNUSED_FUNCTION_CMD_LINE_ARG)
+ 
+         set(BUILD_SHARED_LIBS OFF)
