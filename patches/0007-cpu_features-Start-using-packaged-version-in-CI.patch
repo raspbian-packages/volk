@@ -1,0 +1,31 @@
+From 04c10bc8da7479e5023bde88a9ccf2a4ace62727 Mon Sep 17 00:00:00 2001
+From: Johannes Demel <jdemel@gnuradio.org>
+Date: Sun, 6 Jul 2025 19:06:37 +0200
+Subject: [PATCH 07/12] cpu_features: Start using packaged version in CI
+
+Most distros provide a cpu_features package now. On most platforms all
+the required features are available. Let's use these features.
+
+Signed-off-by: Johannes Demel <jdemel@gnuradio.org>
+---
+ .github/workflows/run-tests.yml | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/.github/workflows/run-tests.yml b/.github/workflows/run-tests.yml
+index c4496a3..10cf81a 100644
+--- a/.github/workflows/run-tests.yml
++++ b/.github/workflows/run-tests.yml
+@@ -58,7 +58,9 @@ jobs:
+           cmake --build build -j$(nproc)
+       - name: Print info
+         run: |
+-          ./build/cpu_features/list_cpu_features
++          if [ -f ./build/cpu_features/list_cpu_features ]; then
++            ./build/cpu_features/list_cpu_features
++          fi
+           ./build/apps/volk-config-info --alignment
+           ./build/apps/volk-config-info --avail-machines
+           ./build/apps/volk-config-info --all-machines
+-- 
+2.47.2
+

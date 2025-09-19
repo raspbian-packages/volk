@@ -1,0 +1,87 @@
+From 36a5a520ff300a47adcda7c0995a59df6d609a02 Mon Sep 17 00:00:00 2001
+From: Johannes Demel <jdemel@gnuradio.org>
+Date: Sat, 5 Jul 2025 16:40:48 +0200
+Subject: [PATCH 06/12] cx-limited-range: Scope compile feature
+
+We only want to use this flag in necessary compilation units. All other
+units should build without this option. Further, this fixes issues with
+the latest Clang compiler versions.
+
+Signed-off-by: Johannes Demel <jdemel@gnuradio.org>
+---
+ CMakeLists.txt     | 21 ---------------------
+ lib/CMakeLists.txt | 19 ++++++++++++++-----
+ 2 files changed, 14 insertions(+), 26 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b4d5f21..9253694 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -28,27 +28,6 @@ enable_testing()
+ ########################################################################
+ 
+ # Disable complex math NaN/INFO range checking for performance
+-include(CheckCXXCompilerFlag)
+-check_cxx_compiler_flag(-fcx-limited-range HAVE_CX_LIMITED_RANGE)
+-if(HAVE_CX_LIMITED_RANGE)
+-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fcx-limited-range")
+-    check_cxx_compiler_flag(-Wno-unused-command-line-argument
+-                            HAVE_WNO_UNUSED_CMD_LINE_ARG)
+-    if(HAVE_WNO_UNUSED_CMD_LINE_ARG)
+-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-command-line-argument")
+-    endif(HAVE_WNO_UNUSED_CMD_LINE_ARG)
+-endif(HAVE_CX_LIMITED_RANGE)
+-
+-include(CheckCCompilerFlag)
+-check_c_compiler_flag(-fcx-limited-range HAVE_C_LIMITED_RANGE)
+-if(HAVE_C_LIMITED_RANGE)
+-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fcx-limited-range")
+-    check_cxx_compiler_flag(-Wno-unused-command-line-argument
+-                            HAVE_WNO_UNUSED_CMD_LINE_ARG)
+-    if(HAVE_WNO_UNUSED_CMD_LINE_ARG)
+-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-command-line-argument")
+-    endif(HAVE_WNO_UNUSED_CMD_LINE_ARG)
+-endif(HAVE_C_LIMITED_RANGE)
+ 
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+diff --git a/lib/CMakeLists.txt b/lib/CMakeLists.txt
+index db3e78d..ababae9 100644
+--- a/lib/CMakeLists.txt
++++ b/lib/CMakeLists.txt
+@@ -93,11 +93,8 @@ execute_process(
+     OUTPUT_VARIABLE arch_flag_lines
+     OUTPUT_STRIP_TRAILING_WHITESPACE)
+ 
+-try_compile(
+-    HAVE_RVV_INTRINSICS
+-    ${CMAKE_BINARY_DIR}
+-    ${CMAKE_SOURCE_DIR}/cmake/Checks/check-rvv-intrinsics.c
+-)
++try_compile(HAVE_RVV_INTRINSICS ${CMAKE_BINARY_DIR}
++            ${CMAKE_SOURCE_DIR}/cmake/Checks/check-rvv-intrinsics.c)
+ if(HAVE_RVV_INTRINSICS)
+     message(STATUS "Checking RVV intrinsics - found")
+ else()
+@@ -571,6 +568,18 @@ if(NOT MSVC)
+     set_target_properties(volk_obj PROPERTIES COMPILE_FLAGS "-fPIC")
+ endif()
+ 
++# Disable complex math NaN/INFO range checking for performance
++include(CheckCCompilerFlag)
++check_c_compiler_flag(-fcx-limited-range HAVE_C_LIMITED_RANGE)
++if(HAVE_C_LIMITED_RANGE)
++    set_target_properties(volk_obj PROPERTIES COMPILE_FLAGS "-fcx-limited-range")
++    check_c_compiler_flag(-Wno-unused-command-line-argument HAVE_WNO_UNUSED_CMD_LINE_ARG)
++    if(HAVE_WNO_UNUSED_CMD_LINE_ARG)
++        set_target_properties(volk_obj PROPERTIES COMPILE_FLAGS
++                                                  "-Wno-unused-command-line-argument")
++    endif(HAVE_WNO_UNUSED_CMD_LINE_ARG)
++endif(HAVE_C_LIMITED_RANGE)
++
+ #Add dynamic library
+ #
+ #NOTE: The PUBLIC include directories and library linkage will be
+-- 
+2.47.2
+

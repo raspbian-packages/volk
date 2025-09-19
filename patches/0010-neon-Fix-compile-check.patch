@@ -1,0 +1,51 @@
+From e4f2b1d6e46a3094bd434dcae9451dbcecb18a3e Mon Sep 17 00:00:00 2001
+From: Johannes Demel <jdemel@gnuradio.org>
+Date: Sun, 6 Jul 2025 21:22:25 +0200
+Subject: [PATCH 10/12] neon: Fix compile check
+
+The `check_c_source_compiles` code to test if NEON is supported was
+broken. Let's add flags and formatting to make it work again.
+
+Signed-off-by: Johannes Demel <jdemel@gnuradio.org>
+---
+ lib/CMakeLists.txt | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
+
+--- a/lib/CMakeLists.txt
++++ b/lib/CMakeLists.txt
+@@ -231,18 +231,17 @@
+ 
+ include(CheckCSourceCompiles)
+ 
+-check_c_source_compiles(
+-    "#include <arm_neon.h>\nint main(){ uint8_t *dest; uint8x8_t res; vst1_u8(dest, res); }"
+-    neon_compile_result)
++set(CMAKE_C_FLAGS_SAVED "${CMAKE_C_FLAGS}")
++set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-uninitialized")
++check_c_source_compiles("#include <arm_neon.h>
++int main(){ uint8_t *dest; uint8x8_t res; vst1_u8(dest, res); }" neon_compile_result)
+ 
+ if(neon_compile_result)
+     set(CMAKE_REQUIRED_INCLUDES ${PROJECT_SOURCE_DIR}/include)
+-    check_c_source_compiles(
+-        "#include <volk/volk_common.h>\n int main(){__VOLK_ASM(\"vrev32.8 q0, q0\");}"
+-        have_neonv7_result)
+-    check_c_source_compiles(
+-        "#include <volk/volk_common.h>\n int main(){__VOLK_ASM(\"sub v1.4s,v1.4s,v1.4s\");}"
+-        have_neonv8_result)
++    check_c_source_compiles("#include <volk/volk_common.h>
++        int main(){__VOLK_ASM(\"vrev32.8 q0, q0\");}" have_neonv7_result)
++    check_c_source_compiles("#include <volk/volk_common.h>
++        int main(){__VOLK_ASM(\"sub v1.4s,v1.4s,v1.4s\");}" have_neonv8_result)
+ 
+     if(NOT have_neonv7_result)
+         overrule_arch(neonv7 "Compiler doesn't support neonv7")
+@@ -256,7 +255,7 @@
+     overrule_arch(neonv7 "Compiler doesn't support NEON")
+     overrule_arch(neonv8 "Compiler doesn't support NEON")
+ endif(neon_compile_result)
+-
++set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS_SAVED}")
+ ########################################################################
+ # implement overruling in the ORC case,
+ # since ORC always passes flag detection

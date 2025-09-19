@@ -1,0 +1,29 @@
+From 8381b520d6775ca8475a7c86dad3973210762555 Mon Sep 17 00:00:00 2001
+From: Anil Gurses <anilgurses98@gmail.com>
+Date: Tue, 25 Feb 2025 20:53:03 -0500
+Subject: [PATCH 01/12] Fix github actions for publishing docs
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Anıl Gürses <anilgurses98@gmail.com>
+---
+ .github/workflows/publish_docs.yml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/.github/workflows/publish_docs.yml b/.github/workflows/publish_docs.yml
+index 9bbf5bb..1e7190f 100644
+--- a/.github/workflows/publish_docs.yml
++++ b/.github/workflows/publish_docs.yml
+@@ -28,7 +28,7 @@ jobs:
+         env:
+           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+           TARGET_DIR: "${{ github.ref_type }}/${{ github.ref_name }}"
+-        run: 'tar -cz build/html/ | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_SERVER }} "mkdir -p /www/${{ env.TARGET_DIR }}/$(date +%Y.%m.%d); cd /www/${{ env.TARGET_DIR }}/$(date +%Y.%m.%d); tar --strip-components=2 -xz; rm /www/${{ env.TARGET_DIR }}/live; cd /www/${{ env.TARGET_DIR }}; ln -sf $(date +%Y.%m.%d) live;"'
++        run: 'tar -cz build/html/ | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_SERVER }} "mkdir -p /www/${{ env.TARGET_DIR }}/$(date +%Y.%m.%d); cd /www/${{ env.TARGET_DIR }}/$(date +%Y.%m.%d); tar --strip-components=2 -xzf -; rm -f /www/${{ env.TARGET_DIR }}/live; cd /www/${{ env.TARGET_DIR }}; ln -sf $(date +%Y.%m.%d) live;"'
+       - uses: actions/upload-artifact@v4
+         with:
+           name: volk_docs
+-- 
+2.47.2
+
