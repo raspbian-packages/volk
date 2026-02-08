@@ -1,0 +1,306 @@
+/* -*- c++ -*- */
+/*
+ * Copyright 2014 - 2021 Free Software Foundation, Inc.
+ * Copyright 2023 - 2025 Magnus Lundmark <magnuslundmark@gmail.com>
+ *
+ * This file is part of VOLK
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
+
+#include "qa_utils.h"
+
+#include <volk/volk.h>
+#include <cmath>
+#include <limits>
+#include <vector>
+
+// macros for initializing volk_test_case_t. Macros are needed to generate
+// function names of the pattern kernel_name_*
+
+// for puppets we need to get all the func_variants for the puppet and just
+// keep track of the actual function name to write to results
+#define VOLK_INIT_PUPP(func, puppet_master_func, test_params) \
+    volk_test_case_t(func##_get_func_desc(),                  \
+                     (void (*)())func##_manual,               \
+                     std::string(#func),                      \
+                     std::string(#puppet_master_func),        \
+                     test_params)
+
+#define VOLK_INIT_TEST(func, test_params)       \
+    volk_test_case_t(func##_get_func_desc(),    \
+                     (void (*)())func##_manual, \
+                     std::string(#func),        \
+                     test_params)
+
+#define QA(test) test_cases.push_back(test);
+std::vector<volk_test_case_t> init_test_list(volk_test_params_t test_params)
+{
+    const float inf = std::numeric_limits<float>::infinity();
+    const float nan = std::nanf("");
+
+    // Some kernels need a lower tolerance
+    volk_test_params_t test_params_inacc = test_params.make_tol(1e-2);
+    volk_test_params_t test_params_inacc_tenth = test_params.make_tol(1e-1);
+
+    volk_test_params_t test_params_power(test_params);
+    test_params_power.set_scalar(2.5);
+
+    volk_test_params_t test_params_clamp(test_params);
+    test_params_clamp.set_scalar(-.5f);
+
+    volk_test_params_t test_params_rotator(test_params);
+    test_params_rotator.set_scalar(std::polar(1.0f, 0.1f));
+    test_params_rotator.set_tol(1e-3);
+
+    volk_test_params_t test_params_snf(test_params);
+    test_params_snf.set_scalar(0.5);
+    test_params_snf.set_tol(1e-4);
+
+    std::vector<volk_test_case_t> test_cases;
+    QA(VOLK_INIT_PUPP(volk_64u_popcntpuppet_64u, volk_64u_popcnt, test_params))
+    QA(VOLK_INIT_PUPP(volk_16u_byteswappuppet_16u, volk_16u_byteswap, test_params))
+    QA(VOLK_INIT_PUPP(volk_32u_byteswappuppet_32u, volk_32u_byteswap, test_params))
+    QA(VOLK_INIT_PUPP(volk_32u_popcntpuppet_32u, volk_32u_popcnt, test_params))
+    QA(VOLK_INIT_PUPP(volk_64u_byteswappuppet_64u, volk_64u_byteswap, test_params))
+    QA(VOLK_INIT_PUPP(volk_32fc_s32fc_rotator2puppet_32fc,
+                      volk_32fc_s32fc_x2_rotator2_32fc,
+                      test_params_rotator))
+    QA(VOLK_INIT_PUPP(
+        volk_8u_conv_k7_r2puppet_8u, volk_8u_x4_conv_k7_r2_8u, test_params.make_tol(0)))
+    QA(VOLK_INIT_PUPP(volk_32f_x2_fm_detectpuppet_32f,
+                      volk_32f_s32f_32f_fm_detect_32f,
+                      test_params.make_absolute(1e-6)))
+    QA(VOLK_INIT_TEST(volk_16ic_s32f_deinterleave_real_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_16ic_deinterleave_real_8i, test_params))
+    QA(VOLK_INIT_TEST(volk_16ic_deinterleave_16i_x2, test_params))
+    QA(VOLK_INIT_TEST(volk_16ic_s32f_deinterleave_32f_x2, test_params))
+    QA(VOLK_INIT_TEST(volk_16ic_deinterleave_real_16i, test_params))
+    QA(VOLK_INIT_TEST(volk_16ic_magnitude_16i, test_params))
+    QA(VOLK_INIT_TEST(volk_16ic_s32f_magnitude_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_16ic_convert_32fc, test_params))
+    QA(VOLK_INIT_TEST(volk_16ic_x2_multiply_16ic, test_params))
+    QA(VOLK_INIT_TEST(volk_16ic_x2_dot_prod_16ic, test_params))
+    QA(VOLK_INIT_TEST(volk_16i_s32f_convert_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_16i_convert_8i, test_params))
+    QA(VOLK_INIT_TEST(volk_16i_32fc_dot_prod_32fc, test_params.make_absolute(1e-1)))
+    QA(VOLK_INIT_TEST(volk_32f_accumulator_s32f, test_params.make_absolute(2e-2)))
+    QA(VOLK_INIT_TEST(volk_32f_x2_add_32f, test_params))
+
+    // Index kernels need identical values to test tie-breaking (first index wins)
+    volk_test_params_t test_params_index(test_params.make_tol(0));
+    test_params_index.add_float_edge_cases({
+        1.0f,
+        1.0f,
+        1.0f,
+        1.0f, // 4 identical (SSE lane width)
+        1.0f,
+        1.0f,
+        1.0f,
+        1.0f, // 8 total (AVX lane width)
+        1.0f,
+        1.0f,
+        1.0f,
+        1.0f, // 12
+        1.0f,
+        1.0f,
+        1.0f,
+        1.0f, // 16 total (AVX512 lane width)
+    });
+    QA(VOLK_INIT_TEST(volk_32f_index_max_16u, test_params_index))
+    QA(VOLK_INIT_TEST(volk_32f_index_max_32u, test_params_index))
+    QA(VOLK_INIT_TEST(volk_32f_index_min_16u, test_params_index))
+    QA(VOLK_INIT_TEST(volk_32f_index_min_32u, test_params_index))
+    QA(VOLK_INIT_TEST(volk_32fc_32f_multiply_32fc, test_params))
+    QA(VOLK_INIT_TEST(volk_32fc_32f_add_32fc, test_params))
+
+    volk_test_params_t test_params_log2(test_params.make_absolute(5e-6));
+    test_params_log2.add_float_edge_cases({ -1.f, 0.f, inf, 65536.f });
+    QA(VOLK_INIT_TEST(volk_32f_log2_32f, test_params_log2))
+
+    QA(VOLK_INIT_TEST(volk_32f_expfast_32f, test_params_inacc_tenth))
+    QA(VOLK_INIT_TEST(volk_32f_sin_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_cos_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_sincos_32f_x2, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_tan_32f, test_params_inacc))
+
+    volk_test_params_t test_params_atan(test_params);
+    test_params_atan.add_float_edge_cases({ std::nanf(""),
+                                            std::numeric_limits<float>::infinity(),
+                                            -std::numeric_limits<float>::infinity(),
+                                            0.0f,
+                                            -0.0f,
+                                            1e10f,
+                                            -1e10f,
+                                            1.0f,
+                                            -1.0f });
+    QA(VOLK_INIT_TEST(volk_32f_atan_32f, test_params_atan))
+
+    volk_test_params_t test_params_asin(test_params);
+    test_params_asin.set_tol(1e-5);
+    test_params_asin.add_float_edge_cases({ std::nanf(""),
+                                            1.0f,
+                                            -1.0f,
+                                            0.0f,
+                                            -0.0f,
+                                            0.5f,
+                                            -0.5f,
+                                            0.99f,
+                                            -0.99f,
+                                            0.707107f,
+                                            -0.707107f });
+    QA(VOLK_INIT_TEST(volk_32f_asin_32f, test_params_asin))
+    QA(VOLK_INIT_TEST(volk_32f_acos_32f, test_params_asin))
+    QA(VOLK_INIT_TEST(volk_32fc_s32f_power_32fc, test_params_power))
+    QA(VOLK_INIT_TEST(volk_32f_s32f_calc_spectral_noise_floor_32f, test_params_snf))
+
+    volk_test_params_t test_params_atan2(test_params);
+    test_params_atan2.add_complex_edge_cases(
+        { lv_cmake(0.0f, 0.0f),   // atan2(0, 0) = 0
+          lv_cmake(0.0f, -0.0f),  // atan2(-0, 0) = -0 (preserve sign)
+          lv_cmake(0.0f, 1.0f),   // atan2(1, 0) = π/2
+          lv_cmake(0.0f, -1.0f),  // atan2(-1, 0) = -π/2
+          lv_cmake(1.0f, 0.0f),   // atan2(0, 1) = 0
+          lv_cmake(-1.0f, 0.0f),  // atan2(0, -1) = π
+          lv_cmake(1.0f, 1.0f),   // atan2(1, 1) = π/4
+          lv_cmake(-1.0f, 1.0f),  // atan2(1, -1) = 3π/4
+          lv_cmake(-1.0f, -1.0f), // atan2(-1, -1) = -3π/4
+          lv_cmake(1.0f, -1.0f),  // atan2(-1, 1) = -π/4
+          lv_cmake(inf, inf),     // atan2(inf, inf) = π/4
+          lv_cmake(inf, -inf),    // atan2(-inf, inf) = -π/4
+          lv_cmake(-inf, inf),    // atan2(inf, -inf) = 3π/4
+          lv_cmake(-inf, -inf),   // atan2(-inf, -inf) = -3π/4
+          lv_cmake(inf, 0.0f),    // atan2(0, inf) = 0
+          lv_cmake(-inf, 0.0f),   // atan2(0, -inf) = π
+          lv_cmake(1.0f, inf),    // atan2(inf, 1) = π/2
+          lv_cmake(1.0f, -inf),   // atan2(-inf, 1) = -π/2
+          lv_cmake(nan, 1.0f),    // atan2(1, nan) = nan (propagate)
+          lv_cmake(1.0f, nan) }); // atan2(nan, 1) = nan (propagate)
+    QA(VOLK_INIT_TEST(volk_32fc_s32f_atan2_32f, test_params_atan2))
+    QA(VOLK_INIT_TEST(volk_32fc_x2_conjugate_dot_prod_32fc,
+                      test_params.make_absolute(2e-2)))
+    QA(VOLK_INIT_TEST(volk_32fc_deinterleave_32f_x2, test_params))
+    QA(VOLK_INIT_TEST(volk_32fc_accumulator_s32fc, test_params.make_absolute(3e-2)))
+    QA(VOLK_INIT_TEST(volk_32fc_deinterleave_64f_x2, test_params))
+    QA(VOLK_INIT_TEST(volk_32fc_s32f_deinterleave_real_16i, test_params.make_tol(1)))
+    QA(VOLK_INIT_TEST(volk_32fc_deinterleave_imag_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_32fc_deinterleave_real_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_32fc_deinterleave_real_64f, test_params))
+    QA(VOLK_INIT_TEST(volk_32fc_x2_dot_prod_32fc, test_params.make_absolute(2e-2)))
+    QA(VOLK_INIT_TEST(volk_32fc_32f_dot_prod_32fc, test_params.make_absolute(1e-2)))
+
+    // Complex index kernels: same magnitude values to test tie-breaking
+    volk_test_params_t test_params_index_fc(test_params.make_tol(0));
+    test_params_index_fc.add_complex_edge_cases({
+        lv_cmake(1.0f, 0.0f),
+        lv_cmake(1.0f, 0.0f), // 2 same magnitude
+        lv_cmake(0.0f, 1.0f),
+        lv_cmake(0.0f, 1.0f), // 4 (all |z|=1)
+        lv_cmake(1.0f, 0.0f),
+        lv_cmake(1.0f, 0.0f), // 6
+        lv_cmake(0.0f, 1.0f),
+        lv_cmake(0.0f, 1.0f), // 8 (covers AVX 8-wide)
+    });
+    QA(VOLK_INIT_TEST(volk_32fc_index_max_16u, test_params_index_fc))
+    QA(VOLK_INIT_TEST(volk_32fc_index_max_32u, test_params_index_fc))
+    QA(VOLK_INIT_TEST(volk_32fc_index_min_16u, test_params_index_fc))
+    QA(VOLK_INIT_TEST(volk_32fc_index_min_32u, test_params_index_fc))
+    QA(VOLK_INIT_TEST(volk_32fc_s32f_magnitude_16i, test_params.make_tol(1)))
+    QA(VOLK_INIT_TEST(volk_32fc_magnitude_32f, test_params_inacc_tenth))
+    QA(VOLK_INIT_TEST(volk_32fc_magnitude_squared_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_32fc_x2_add_32fc, test_params))
+    QA(VOLK_INIT_TEST(volk_32fc_x2_multiply_32fc, test_params))
+    QA(VOLK_INIT_TEST(volk_32fc_x2_multiply_conjugate_32fc, test_params))
+    QA(VOLK_INIT_TEST(volk_32fc_x2_divide_32fc, test_params))
+    QA(VOLK_INIT_TEST(volk_32fc_conjugate_32fc, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_s32f_convert_16i, test_params.make_tol(1)))
+    QA(VOLK_INIT_TEST(volk_32f_s32f_convert_32i, test_params.make_tol(1)))
+    QA(VOLK_INIT_TEST(volk_32f_convert_64f, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_s32f_convert_8i, test_params.make_tol(1)))
+    QA(VOLK_INIT_TEST(volk_32fc_convert_16ic, test_params.make_tol(1)))
+    QA(VOLK_INIT_TEST(volk_32fc_s32f_power_spectrum_32f, test_params.make_tol(2e-6)))
+    QA(VOLK_INIT_TEST(volk_32fc_x2_square_dist_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_32fc_x2_s32f_square_dist_scalar_mult_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_x2_divide_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_x2_dot_prod_32f, test_params.make_absolute(1.5e-2)))
+    QA(VOLK_INIT_TEST(volk_32f_x2_s32f_interleave_16ic, test_params.make_tol(1)))
+    QA(VOLK_INIT_TEST(volk_32f_x2_interleave_32fc, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_x2_max_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_x2_min_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_x2_multiply_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_64f_multiply_64f, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_64f_add_64f, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_s32f_normalize, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_s32f_power_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_reciprocal_32f, test_params.make_tol(6.15e-5)))
+    QA(VOLK_INIT_TEST(volk_32f_sqrt_32f, test_params_inacc))
+
+    volk_test_params_t test_params_invsqrt(test_params.make_tol(1e-6));
+    test_params_invsqrt.add_float_edge_cases(
+        { -1.f, 1.f, 0.f, inf, 1e-2f, 1e2f, 1e-10, 1e10 });
+    QA(VOLK_INIT_TEST(volk_32f_invsqrt_32f, test_params_invsqrt))
+    QA(VOLK_INIT_TEST(volk_32f_s32f_stddev_32f, test_params_inacc))
+    QA(VOLK_INIT_TEST(volk_32f_stddev_and_mean_32f_x2, test_params.make_absolute(1e-5)))
+    QA(VOLK_INIT_TEST(volk_32f_x2_subtract_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_x3_sum_of_poly_32f, test_params.make_absolute(1e+3)))
+    QA(VOLK_INIT_TEST(volk_32i_x2_and_32i, test_params))
+    QA(VOLK_INIT_TEST(volk_32i_s32f_convert_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_32i_x2_or_32i, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_x2_dot_prod_16i, test_params.make_tol(1)))
+    QA(VOLK_INIT_TEST(volk_64f_convert_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_64f_x2_max_64f, test_params))
+    QA(VOLK_INIT_TEST(volk_64f_x2_min_64f, test_params))
+    QA(VOLK_INIT_TEST(volk_64f_x2_multiply_64f, test_params))
+    QA(VOLK_INIT_TEST(volk_64f_x2_add_64f, test_params))
+    QA(VOLK_INIT_TEST(volk_64f_x2_dot_prod_64f, test_params))
+    QA(VOLK_INIT_TEST(volk_8ic_deinterleave_16i_x2, test_params))
+    QA(VOLK_INIT_TEST(volk_8ic_s32f_deinterleave_32f_x2, test_params))
+    QA(VOLK_INIT_TEST(volk_8ic_deinterleave_real_16i, test_params))
+    QA(VOLK_INIT_TEST(volk_8ic_s32f_deinterleave_real_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_8ic_deinterleave_real_8i, test_params))
+    QA(VOLK_INIT_TEST(volk_8ic_x2_multiply_conjugate_16ic, test_params))
+    QA(VOLK_INIT_TEST(volk_8ic_x2_s32f_multiply_conjugate_32fc, test_params))
+    QA(VOLK_INIT_TEST(volk_8i_convert_16i, test_params))
+    QA(VOLK_INIT_TEST(volk_8i_s32f_convert_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_8i_x2_add_saturated_8i, test_params))
+    QA(VOLK_INIT_TEST(volk_8u_x2_add_saturated_8u, test_params))
+    QA(VOLK_INIT_TEST(volk_16i_x2_add_saturated_16i, test_params))
+    QA(VOLK_INIT_TEST(volk_16u_x2_add_saturated_16u, test_params))
+    QA(VOLK_INIT_TEST(volk_32fc_s32fc_multiply2_32fc, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_s32f_multiply_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_s32f_add_32f, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_binary_slicer_32i, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_binary_slicer_8i, test_params))
+    QA(VOLK_INIT_TEST(volk_32u_reverse_32u, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_tanh_32f, test_params_inacc))
+    QA(VOLK_INIT_TEST(volk_32fc_x2_s32fc_multiply_conjugate_add2_32fc, test_params))
+    QA(VOLK_INIT_TEST(volk_32f_exp_32f, test_params))
+    QA(VOLK_INIT_PUPP(volk_32f_x2_powpuppet_32f, volk_32f_x2_pow_32f, test_params_inacc))
+    QA(VOLK_INIT_PUPP(
+        volk_32f_s32f_mod_rangepuppet_32f, volk_32f_s32f_s32f_mod_range_32f, test_params))
+    QA(VOLK_INIT_PUPP(
+        volk_8u_x3_encodepolarpuppet_8u, volk_8u_x3_encodepolar_8u_x2, test_params))
+    QA(VOLK_INIT_PUPP(volk_32f_8u_polarbutterflypuppet_32f,
+                      volk_32f_8u_polarbutterfly_32f,
+                      test_params))
+    QA(VOLK_INIT_PUPP(volk_32fc_s32f_power_spectral_densitypuppet_32f,
+                      volk_32fc_s32f_x2_power_spectral_density_32f,
+                      test_params))
+    QA(VOLK_INIT_PUPP(
+        volk_32f_s32f_clamppuppet_32f, volk_32f_s32f_x2_clamp_32f, test_params_clamp))
+    QA(VOLK_INIT_PUPP(volk_32f_s32f_convertpuppet_8u,
+                      volk_32f_s32f_x2_convert_8u,
+                      test_params.make_tol(1)))
+    // no one uses these, so don't test them
+    // VOLK_PROFILE(volk_16i_x5_add_quad_16i_x4, 1e-4, 2046, 10000, &results,
+    // benchmark_mode, kernel_regex); VOLK_PROFILE(volk_16i_branch_4_state_8, 1e-4, 2046,
+    // 10000, &results, benchmark_mode, kernel_regex); VOLK_PROFILE(volk_16i_max_star_16i,
+    // 0, 0, 204602, 10000, &results, benchmark_mode, kernel_regex);
+    // VOLK_PROFILE(volk_16i_max_star_horizontal_16i, 0, 0, 204602, 10000, &results,
+    // benchmark_mode, kernel_regex); VOLK_PROFILE(volk_16i_permute_and_scalar_add, 1e-4,
+    // 0, 2046, 10000, &results, benchmark_mode, kernel_regex);
+    // VOLK_PROFILE(volk_16i_x4_quad_max_star_16i, 1e-4, 0, 2046, 10000, &results,
+    // benchmark_mode, kernel_regex);
+
+    return test_cases;
+}
