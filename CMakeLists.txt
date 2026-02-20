@@ -112,6 +112,10 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES
 else()
     option(VOLK_CPU_FEATURES "Volk uses cpu_features" OFF)
 endif()
+# Until CpuFeatures is available on Debian hurd-amd64, build without..
+if((CMAKE_SYSTEM_NAME STREQUAL "GNU") AND (CMAKE_SYSTEM_PROCESSOR MATCHES "(AMD64|amd64)"))
+  set(VOLK_CPU_FEATURES=OFF)
+endif()
 
 if(VOLK_CPU_FEATURES)
     find_package(CpuFeatures QUIET)
