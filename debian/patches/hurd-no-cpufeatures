@@ -1,0 +1,20 @@
+Author: A. Maitland Bottoms <bottoms@debian.org>
+Description: hurd no cpufeatures
+Forwarded: not needed
+
+Build on Debian hurd-amd64 which does not (yet)
+provide CpuFeatures.
+
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -112,6 +112,10 @@
+ else()
+     option(VOLK_CPU_FEATURES "Volk uses cpu_features" OFF)
+ endif()
++# Until CpuFeatures is available on Debian hurd-amd64, build without..
++if((CMAKE_SYSTEM_NAME STREQUAL "GNU") AND (CMAKE_SYSTEM_PROCESSOR MATCHES "(AMD64|amd64)"))
++  set(VOLK_CPU_FEATURES=OFF)
++endif()
+ 
+ if(VOLK_CPU_FEATURES)
+     find_package(CpuFeatures QUIET)
